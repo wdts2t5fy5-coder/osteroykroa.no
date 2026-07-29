@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meny – Osterøykroa</title>
+  <meta name="description" content="Meny for Osterøykroa – burgermeny, snadder-tallerken, pizza og barnemeny.">
+  <link rel="stylesheet" href="css/style.css?v=6">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container">
+      <a href="index.html" class="logo"><img src="images/logo.png?v=3" alt="Osterøykroa – Der godtfolk treffest!" height="40"></a>
+      <button class="nav-toggle" aria-label="Åpne meny">&#9776;</button>
+      <nav class="main-nav">
+        <ul>
+          <li><a href="index.html">Hjem</a></li>
+          <li><a href="meny.html" class="active">Meny</a></li>
+          <li><a href="om-oss.html">Om oss</a></li>
+          <li><a href="kontakt.html">Kontakt</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero" style="padding: 60px 0;">
+    <div class="hero-stripe">
+      <h1>Meny</h1>
+    </div>
+    <div class="container">
+      <p>Kjøkken- og grillmat frå hjartet av Osterøy. Ferske råvarer og gode porsjonar, tilarbeidd med omtanke – akkurat slik det har vore sidan 1997.</p>
+    </div>
+  </section>
+
+  <section style="padding-top:0; padding-bottom:0;">
+    <div class="container" style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:-16px; margin-bottom:16px;">
+      <img src="images/mat-hamburger.jpg" alt="Hamburger" style="border-radius:8px; width:100%; height:160px; object-fit:cover;">
+      <img src="images/mat-pizza.jpg?v=2" alt="Nystekt pizza" style="border-radius:8px; width:100%; height:160px; object-fit:cover;">
+      <img src="images/mat-vegetarburger.jpg" alt="Vegetarburger med pommes" style="border-radius:8px; width:100%; height:160px; object-fit:cover;">
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div style="max-width:640px; margin:0 auto 40px; text-align:center; background:var(--color-bg-alt); border:1px solid var(--color-border); border-radius:8px; padding:24px;">
+        <p style="margin:0; font-size:1.05rem;"><strong>Ekte kvalitet, i kvart måltid.</strong> Me går ikkje på akkord med råvarene – difor kjennest det på tallerkenen. Godt nok til at folk har kome tilbake sidan 1997.</p>
+      </div>
+      <p class="menu-price-legend"><strong>Ta med</strong> = takeaway-pris &middot; <strong>Spis her</strong> = pris ved bordservering</p>
+
+      <div class="menu-category">
+        <h3>Burgermeny</h3>
+        <p class="section-intro" style="margin-bottom:20px;">Med drikke og pommes frites</p>
+        <div class="menu-item">
+          <div><span class="menu-item-name">Hamburger 100 g</span></div>
+          <span class="menu-item-prices">199,- <small>ta med</small>219,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div><span class="menu-item-name">Hamburger 160 g</span></div>
+          <span class="menu-item-prices">239,- <small>ta med</small>259,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div><span class="menu-item-name">Hamburger 250 g</span></div>
+          <span class="menu-item-prices">269,- <small>ta med</small>299,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div><span class="menu-item-name">Jafs Burger 200 g</span></div>
+          <span class="menu-item-prices">255,- <small>ta med</small>275,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div><span class="menu-item-name">Jafs Burger 320 g</span></div>
+          <span class="menu-item-prices">309,- <small>ta med</small>339,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div><span class="menu-item-name">Jafs Burger 500 g</span></div>
+          <span class="menu-item-prices">439,- <small>ta med</small>479,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div><span class="menu-item-name">Vegetar Burger</span></div>
+          <span class="menu-item-prices">239,- <small>ta med</small>259,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div><span class="menu-item-name">Kyllingburger</span></div>
+          <span class="menu-item-prices">239,- <small>ta med</small>259,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">Osterøy burger</span>
+            <span class="menu-item-desc">Løvstek burger</span>
+          </div>
+          <span class="menu-item-prices">239,- <small>ta med</small>260,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">Tillegg</span>
+            <span class="menu-item-desc">Ost eller bacon</span>
+          </div>
+          <span class="menu-item-prices">20,-</span>
+        </div>
+      </div>
+
+      <div class="menu-category">
+        <h3>Barnemeny</h3>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">Velg mellom hamburger, nuggets eller pølse</span>
+            <span class="menu-item-desc">Serveres med pommes frites og juiceboks</span>
+          </div>
+          <span class="menu-item-prices">149,- <small>ta med</small>159,- <small>spis her</small></span>
+        </div>
+      </div>
+
+      <div class="menu-category">
+        <h3>Snadder tallerken</h3>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">Biffsnadder</span>
+            <span class="menu-item-desc">m/ champignon, løk, frisk salat, pommes frites og bearnaise</span>
+          </div>
+          <span class="menu-item-prices">279,- <small>ta med</small>309,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">Kyllingsnadder</span>
+            <span class="menu-item-desc">m/ champignon, løk, frisk salat, pommes frites og sweet chili</span>
+          </div>
+          <span class="menu-item-prices">279,- <small>ta med</small>309,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">Løvstek</span>
+            <span class="menu-item-desc">m/ frisk salat, pommes frites og bearnaise</span>
+          </div>
+          <span class="menu-item-prices">259,- <small>ta med</small>279,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">Nuggets</span>
+            <span class="menu-item-desc">m/ frisk salat, pommes frites og sweet chili</span>
+          </div>
+          <span class="menu-item-prices">209,- <small>ta med</small>229,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">Fish &amp; chips</span>
+            <span class="menu-item-desc">m/ frisk salat og remulade</span>
+          </div>
+          <span class="menu-item-prices">259,- <small>ta med</small>279,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">Kebabtallerken</span>
+            <span class="menu-item-desc">m/ frisk salat, pommes frites, kebabdressing og pitabrød</span>
+          </div>
+          <span class="menu-item-prices">259,- <small>ta med</small>279,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">Snitzel</span>
+            <span class="menu-item-desc">m/ frisk salat, pommes frites og bearnaise</span>
+          </div>
+          <span class="menu-item-prices">259,- <small>ta med</small>279,- <small>spis her</small></span>
+        </div>
+      </div>
+
+      <div class="menu-category">
+        <h3>Pizza</h3>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">1. Tirevoll</span>
+            <span class="menu-item-desc">Biff, pepperoni, skinke og løk</span>
+          </div>
+          <span class="menu-item-prices">359,- <small>ta med</small>389,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">2. Hånipa</span>
+            <span class="menu-item-desc">Kylling, pepperoni, skinke og løk</span>
+          </div>
+          <span class="menu-item-prices">359,- <small>ta med</small>389,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">3. Geitnipa</span>
+            <span class="menu-item-desc">Bacon, skinke, løk, champignon og mais</span>
+          </div>
+          <span class="menu-item-prices">299,- <small>ta med</small>329,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">4. Åsheimveten</span>
+            <span class="menu-item-desc">Skinke og champignon</span>
+          </div>
+          <span class="menu-item-prices">269,- <small>ta med</small>289,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">5. Teppstadnuken</span>
+            <span class="menu-item-desc">Skinke og pepperoni</span>
+          </div>
+          <span class="menu-item-prices">329,- <small>ta med</small>359,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">6. Settnipa (Glutenfri)</span>
+            <span class="menu-item-desc">Sett saman din eigen pizza</span>
+          </div>
+          <span class="menu-item-prices">289,- <small>ta med</small>299,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">7. Vedafjellet</span>
+            <span class="menu-item-desc">Paprika, løk, champignon, cherrytomat og ruccola</span>
+          </div>
+          <span class="menu-item-prices">289,- <small>ta med</small>319,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">8. Høgafjellet</span>
+            <span class="menu-item-desc">Marinert biffkjøt, løk, tomat, pommes frites og bearnaisesaus</span>
+          </div>
+          <span class="menu-item-prices">359,- <small>ta med</small>389,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">9. Brøknipa</span>
+            <span class="menu-item-desc">Marinert biffkjøt, løk og champignon</span>
+          </div>
+          <span class="menu-item-prices">309,- <small>ta med</small>339,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">10. Utegardsnipa</span>
+            <span class="menu-item-desc">Marinert kylling, løk og mais. Toppa med salat og kebabsaus</span>
+          </div>
+          <span class="menu-item-prices">359,- <small>ta med</small>389,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">11. Rispingen</span>
+            <span class="menu-item-desc">Marinert kyllingkjøt, løk, tomat, paprika og ananas</span>
+          </div>
+          <span class="menu-item-prices">309,- <small>ta med</small>339,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">12. Såtefjellet</span>
+            <span class="menu-item-desc">Tacokjøtdeig, mais, løk og jalapeños</span>
+          </div>
+          <span class="menu-item-prices">289,- <small>ta med</small>319,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">13. Stongfjellet</span>
+            <span class="menu-item-desc">Pepperoni, løk og ananas</span>
+          </div>
+          <span class="menu-item-prices">289,- <small>ta med</small>319,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">14. Erstadfjellet</span>
+            <span class="menu-item-desc">Biff, bacon, løk og mais</span>
+          </div>
+          <span class="menu-item-prices">359,- <small>ta med</small>389,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">15. Stemmeseggi</span>
+            <span class="menu-item-desc">Sett saman din eigen pizza (opptil to typar kjøt og tre grønsaker)</span>
+          </div>
+          <span class="menu-item-prices">359,- <small>ta med</small>389,- <small>spis her</small></span>
+        </div>
+      </div>
+
+      <div class="menu-category">
+        <h3>Tillegg</h3>
+        <div class="menu-item">
+          <div><span class="menu-item-name">Rømmedressing</span></div>
+          <span class="menu-item-prices">35,- <small>ta med</small>39,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div><span class="menu-item-name">Ekstra kjøtt</span></div>
+          <span class="menu-item-prices">49,- <small>ta med</small>55,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div><span class="menu-item-name">Ekstra ost</span></div>
+          <span class="menu-item-prices">39,- <small>ta med</small>45,- <small>spis her</small></span>
+        </div>
+      </div>
+
+      <div class="menu-category">
+        <h3>Ukas spesial</h3>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">Raspetallerken</span>
+            <span class="menu-item-desc">Serveres kvar torsdag</span>
+          </div>
+          <span class="menu-item-prices">299,-</span>
+        </div>
+      </div>
+
+      <div class="menu-category">
+        <h3>Softis</h3>
+        <div class="menu-item">
+          <div><span class="menu-item-name">Softis</span></div>
+          <span class="menu-item-prices">55,-</span>
+        </div>
+      </div>
+
+      <div class="menu-category split" style="align-items:center;">
+        <div>
+          <h3>Milkshake</h3>
+          <p class="section-intro" style="margin-bottom:20px;">Laga med ekte softis frå Hennig Olsen</p>
+          <div class="menu-item">
+            <div><span class="menu-item-name">Vanilje</span></div>
+            <span class="menu-item-prices">89,-</span>
+          </div>
+          <div class="menu-item">
+            <div><span class="menu-item-name">Sjokolade</span></div>
+            <span class="menu-item-prices">89,-</span>
+          </div>
+          <div class="menu-item">
+            <div><span class="menu-item-name">Jordbær</span></div>
+            <span class="menu-item-prices">89,-</span>
+          </div>
+        </div>
+        <img src="images/mat-milkshake-plakat.jpg" alt="Milkshake laget med softis - vanilje, sjokolade og jordbær" style="border-radius:8px; width:100%; max-width:280px; margin:0 auto; display:block;">
+      </div>
+
+      <div class="menu-category">
+        <h3>Catering</h3>
+        <p class="section-intro" style="margin-bottom:20px;">Snitter og selskapsmat til store og små anledningar</p>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">Snitter assortert</span>
+            <span class="menu-item-desc">Pris per snitt</span>
+          </div>
+          <span class="menu-item-prices">74,- <small>ta med</small>84,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">Snitter assortert – helg</span>
+            <span class="menu-item-desc">Pris per snitt, laurdag og søndag</span>
+          </div>
+          <span class="menu-item-prices">79,- <small>ta med</small>89,- <small>spis her</small></span>
+        </div>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">Koldtbord og tapas</span>
+            <span class="menu-item-desc">Me tek imot bestilling etter ønskjer</span>
+          </div>
+          <span class="menu-item-prices">Etter forespørsel</span>
+        </div>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">Selskapslokale i 2. etasje</span>
+            <span class="menu-item-desc">Eigne lokale for arrangement og selskap</span>
+          </div>
+          <span class="menu-item-prices">Etter forespørsel</span>
+        </div>
+      </div>
+
+      <p class="menu-note">Priser og retter kan variere etter sesong. Ta kontakt ved spørsmål om allergier.</p>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <h4>Osterøykroa</h4>
+          <p>Lonevågen 2<br>5282 Lonevåg</p>
+        </div>
+        <div class="footer-center-col">
+          <h4>Følg oss</h4>
+          <div class="social-links">
+            <a href="https://www.facebook.com/osteroykroa" target="_blank" rel="noopener">Facebook</a>
+          </div>
+        </div>
+        <div class="footer-contact-col">
+          <h4>Kontakt</h4>
+          <p>Tlf: <a href="tel:+4756193434">56 19 34 34</a><br>E-post: <a href="mailto:roydy@icloud.com">roydy@icloud.com</a></p>
+        </div>
+      </div>
+      <div class="call-bar-slot">
+        <div class="call-bar">
+          <a href="tel:+4756193434">📞 Ring og bestill: 56 19 34 34</a>
+          <small>Me tek imot bestilling både på telefon og i restauranten</small>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        &copy; 2026 Osterøykroa. Alle rettigheter forbeholdt.<br><a href="https://www.fjordfix.com" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">crafted by FjordFix</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js?v=3"></script>
+</body>
+</html>
