@@ -114,6 +114,18 @@ a {
   padding-bottom: 16px;
 }
 
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.brand-badge {
+  height: 52px;
+  width: auto;
+  flex-shrink: 0;
+}
+
 .logo {
   font-family: var(--font-heading);
   font-size: 1.6rem;
@@ -497,6 +509,14 @@ section.alt {
   .split,
   .contact-grid {
     grid-template-columns: 1fr;
+  }
+
+  .brand {
+    gap: 14px;
+  }
+
+  .brand-badge {
+    height: 42px;
   }
 
   .nav-toggle {
