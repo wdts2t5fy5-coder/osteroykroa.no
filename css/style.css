@@ -121,7 +121,7 @@ a {
 }
 
 .brand-badge {
-  height: 52px;
+  height: 68px;
   width: auto;
   flex-shrink: 0;
 }
@@ -516,7 +516,7 @@ section.alt {
   }
 
   .brand-badge {
-    height: 42px;
+    height: 54px;
   }
 
   .nav-toggle {
