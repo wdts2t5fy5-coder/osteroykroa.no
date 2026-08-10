@@ -543,3 +543,61 @@ section.alt {
     width: 100%;
   }
 }
+
+/* Språkvelger */
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 4px;
+  background: var(--color-bg-alt);
+}
+
+.lang-switch a {
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  color: var(--color-text-muted);
+  padding: 4px 10px;
+  border-radius: 999px;
+  line-height: 1;
+  transition: background 0.2s, color 0.2s;
+}
+
+.lang-switch a:hover {
+  color: var(--color-primary);
+}
+
+.lang-switch a[aria-current="true"] {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.site-header .container {
+  justify-content: flex-start;
+  gap: 24px;
+}
+
+.brand {
+  margin-right: auto;
+}
+
+.main-nav { order: 2; }
+.lang-switch { order: 3; }
+.nav-toggle { order: 4; }
+
+@media (max-width: 780px) {
+  /* menyen legg seg under, språkvelgaren blir verande ved sida av hamburgeren */
+  .main-nav { order: 5; }
+  .site-header .container { gap: 12px; }
+}
+
+/* Logoen får storleik frå CSS, medan width/height på taggen held av plassen */
+.logo img {
+  height: 40px;
+  width: auto;
+  display: block;
+}
