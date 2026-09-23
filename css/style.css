@@ -479,6 +479,12 @@ section.alt {
 }
 
 /* Tekstsider (personvern o.l.) */
+/* Ingressen skal stå midt i lufta mellom hero-stripa og innhaldet under */
+.hero .hero-note {
+  margin-top: 72px;
+  margin-bottom: 0;
+}
+
 .legal-doc {
   max-width: 720px;
 }
@@ -509,7 +515,7 @@ section.alt {
   border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 20px 24px;
-  margin-bottom: 8px;
+  margin: 0 0 8px;
 }
 
 .legal-updated {
