@@ -433,6 +433,93 @@ section.alt {
   border: 0;
 }
 
+/* Samtykke før kartet frå Google blir lasta */
+.map-consent {
+  background: var(--color-bg-alt);
+  padding: 24px;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-size: 0.9rem;
+}
+
+.map-consent h3 {
+  font-family: var(--font-heading);
+  color: var(--color-primary-dark);
+  margin: 0 0 10px;
+  font-size: 1.1rem;
+}
+
+.map-consent p {
+  margin: 0 0 10px;
+  color: var(--color-text-muted);
+}
+
+.map-consent ul {
+  margin: 0 0 10px;
+  padding-left: 20px;
+  color: var(--color-text-muted);
+}
+
+.map-consent li {
+  margin-bottom: 2px;
+}
+
+.map-consent .btn {
+  align-self: flex-start;
+  margin: 6px 0 12px;
+  padding: 11px 22px;
+  font-size: 0.95rem;
+}
+
+.map-consent-alt {
+  font-size: 0.82rem;
+  margin: 0;
+}
+
+/* Tekstsider (personvern o.l.) */
+.legal-doc {
+  max-width: 720px;
+}
+
+.legal-doc h2 {
+  font-family: var(--font-heading);
+  color: var(--color-primary-dark);
+  font-size: 1.3rem;
+  margin: 36px 0 10px;
+}
+
+.legal-doc p,
+.legal-doc li {
+  color: var(--color-text);
+}
+
+.legal-doc ul {
+  padding-left: 22px;
+  margin: 0 0 16px;
+}
+
+.legal-doc li {
+  margin-bottom: 4px;
+}
+
+.legal-lead {
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 20px 24px;
+  margin-bottom: 8px;
+}
+
+.legal-updated {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
 /* Footer */
 .site-footer {
   position: relative;

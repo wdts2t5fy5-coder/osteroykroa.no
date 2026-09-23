@@ -8,6 +8,26 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  // Kartet frå Google blir først lasta når brukaren aktivt samtykker
+  Array.prototype.forEach.call(
+    document.querySelectorAll('[data-load-map]'),
+    function (btn) {
+      btn.addEventListener('click', function () {
+        var wrap = btn.closest('.map-embed');
+        if (!wrap || !wrap.dataset.mapSrc) return;
+
+        var frame = document.createElement('iframe');
+        frame.src = wrap.dataset.mapSrc;
+        frame.title = wrap.dataset.mapTitle || 'Kart';
+        frame.loading = 'lazy';
+        frame.referrerPolicy = 'no-referrer-when-downgrade';
+
+        wrap.innerHTML = '';
+        wrap.appendChild(frame);
+      });
+    }
+  );
+
   var callBar = document.querySelector('.call-bar');
   var slot = document.querySelector('.call-bar-slot');
 
