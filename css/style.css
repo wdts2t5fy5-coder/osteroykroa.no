@@ -489,6 +489,25 @@ section.alt {
   max-width: 720px;
 }
 
+.allergen-list {
+  text-align: right;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  max-width: 58%;
+}
+
+.allergen-note {
+  margin-top: 24px;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+@media (max-width: 560px) {
+  .menu-item .allergen-list {
+    max-width: 50%;
+  }
+}
+
 .legal-doc h2 {
   font-family: var(--font-heading);
   color: var(--color-primary-dark);

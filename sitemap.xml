@@ -81,4 +81,20 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://xn--osterykroa-4cb.no/personvern" />
     <priority>0.2</priority>
   </url>
+  <url>
+    <loc>https://xn--osterykroa-4cb.no/allergener</loc>
+    <lastmod>2026-09-23</lastmod>
+    <xhtml:link rel="alternate" hreflang="nn" href="https://xn--osterykroa-4cb.no/allergener" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://xn--osterykroa-4cb.no/en/allergener" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://xn--osterykroa-4cb.no/allergener" />
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://xn--osterykroa-4cb.no/en/allergener</loc>
+    <lastmod>2026-09-23</lastmod>
+    <xhtml:link rel="alternate" hreflang="nn" href="https://xn--osterykroa-4cb.no/allergener" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://xn--osterykroa-4cb.no/en/allergener" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://xn--osterykroa-4cb.no/allergener" />
+    <priority>0.5</priority>
+  </url>
 </urlset>
