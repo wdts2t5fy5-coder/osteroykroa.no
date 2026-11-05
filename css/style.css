@@ -623,16 +623,20 @@ section.alt {
     grid-template-columns: 1fr;
   }
 
+  /* Logo, språkval og hamburgar skal få plass på éi linje */
   .brand {
-    gap: 14px;
+    gap: 9px;
   }
 
   .brand-badge {
-    height: 54px;
+    height: 42px;
   }
 
   .nav-toggle {
     display: block;
+    font-size: 1.5rem;
+    padding: 0;
+    line-height: 1;
   }
 
   .main-nav {
@@ -712,4 +716,33 @@ section.alt {
   height: 40px;
   width: auto;
   display: block;
+}
+
+/* ── Mobil: logo, språkval og hamburgar på éi linje ───────────────────
+   Må stå sist i fila: .logo img og .lang-switch er definerte lenger
+   oppe, og ville elles overstyrt desse reglane.                        */
+@media (max-width: 780px) {
+  .logo img {
+    height: 30px;
+  }
+
+  /* Plain tekstlenkjer i staden for pilleknappen - sparer plass */
+  .lang-switch {
+    border: 0;
+    background: none;
+    padding: 0;
+    gap: 0;
+  }
+
+  .lang-switch a {
+    padding: 3px 4px;
+    font-size: 0.75rem;
+  }
+
+  .lang-switch a[aria-current="true"] {
+    background: none;
+    color: var(--color-primary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
 }
