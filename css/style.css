@@ -747,3 +747,13 @@ section.alt {
     text-underline-offset: 3px;
   }
 }
+
+/* ── Forsidebiletet: vis skiltet og venstre Jafs-logo på smale skjermar ──
+   Med object-fit:cover syner mobil berre dei midtre ~34% av breidda.
+   25% skyv utsnittet mot venstre slik at «Osterøykroa»-plakaten og
+   Jafs-logoen kjem med.                                                 */
+@media (max-width: 780px) {
+  .hero-photo {
+    object-position: 20% center;
+  }
+}
