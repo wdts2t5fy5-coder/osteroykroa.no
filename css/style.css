@@ -625,11 +625,11 @@ section.alt {
 
   /* Logo, språkval og hamburgar skal få plass på éi linje */
   .brand {
-    gap: 9px;
+    gap: 7px;
   }
 
   .brand-badge {
-    height: 42px;
+    height: 48px;
   }
 
   .nav-toggle {
@@ -708,7 +708,7 @@ section.alt {
 @media (max-width: 780px) {
   /* menyen legg seg under, språkvelgaren blir verande ved sida av hamburgeren */
   .main-nav { order: 5; }
-  .site-header .container { gap: 12px; }
+  .site-header .container { gap: 8px; padding-left: 16px; padding-right: 16px; }
 }
 
 /* Logoen får storleik frå CSS, medan width/height på taggen held av plassen */
@@ -723,7 +723,7 @@ section.alt {
    oppe, og ville elles overstyrt desse reglane.                        */
 @media (max-width: 780px) {
   .logo img {
-    height: 30px;
+    height: 36px;
   }
 
   /* Plain tekstlenkjer i staden for pilleknappen - sparer plass */
@@ -735,8 +735,9 @@ section.alt {
   }
 
   .lang-switch a {
-    padding: 3px 4px;
-    font-size: 0.75rem;
+    padding: 2px 3px;
+    font-size: 0.7rem;
+    letter-spacing: 0;
   }
 
   .lang-switch a[aria-current="true"] {
