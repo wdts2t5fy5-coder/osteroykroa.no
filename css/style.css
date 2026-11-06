@@ -41,8 +41,14 @@ section:last-of-type {
 .call-bar {
   position: fixed;
   bottom: calc(18px + env(safe-area-inset-bottom));
-  left: 50%;
-  transform: translateX(-50%);
+  /* Sentrering med left/right:0 + auto-margin, ikkje left:50% + translate.
+     Med left:50% vart containing block berre 50vw brei, så <small> braut
+     over to linjer i flytande tilstand (tre linjer i alt) men låg på éi
+     linje i hamn. Med full tilgjengeleg breidde blir dei to like. */
+  left: 0;
+  right: 0;
+  width: fit-content;
+  margin: 0 auto;
   z-index: 200;
   background: var(--color-primary);
   color: #fff;
@@ -56,10 +62,6 @@ section:last-of-type {
 
 .call-bar--docked {
   position: static;
-  display: table;
-  margin: 0 auto;
-  left: auto;
-  transform: none;
   box-shadow: none;
 }
 
@@ -80,6 +82,39 @@ section:last-of-type {
   font-size: 0.68rem;
   margin-top: 2px;
   white-space: normal;
+}
+
+/* Smale skjermar: knappen skal alltid vere to linjer. Undertittelen må då
+   få plass på éi linje både flytande (avgrensa av max-width: 92vw) og i
+   hamn (avgrensa av .container si innerbreidde), så me strammar inn luft
+   og skrift i staden for å la teksten bryte. */
+@media (max-width: 430px) {
+  .call-bar {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  /* Nullar ut sideluft i .container slik at knappen i hamn har like mykje
+     plass som den flytande (som berre er avgrensa av max-width: 92vw). */
+  .call-bar-slot {
+    margin-left: -12px;
+    margin-right: -12px;
+  }
+
+  .call-bar {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .call-bar a {
+    font-size: 0.94rem;
+  }
+
+  .call-bar small {
+    font-size: 0.6rem;
+  }
 }
 
 img {
@@ -582,6 +617,20 @@ section.alt {
 .social-links {
   display: flex;
   gap: 16px;
+}
+
+.social-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* Metas merke skal stå uendra: rein kvit glyph, ingen farge, skugge,
+   omriss eller bakgrunn lagt på. */
+.social-links a img {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
 }
 
 .footer-contact-col .social-links {
