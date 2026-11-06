@@ -328,12 +328,16 @@ section.alt {
   margin-bottom: 48px;
 }
 
-.menu-category h3 {
+/* h2, ikkje h3: sidene har berre h1 over desse, og eit hopp frå h1 til h3
+   bryt overskriftsrekkjefølgja. Storleik og luft er låste her slik at
+   utsjånaden er uendra etter nivåbytet. */
+.menu-category h2 {
   font-family: var(--font-heading);
   font-size: 1.5rem;
   color: var(--color-primary-dark);
   border-bottom: 2px solid var(--color-accent);
   padding-bottom: 8px;
+  margin-top: 24px;
   margin-bottom: 20px;
 }
 
@@ -595,10 +599,15 @@ section.alt {
   margin-bottom: 32px;
 }
 
-.footer-grid h4 {
+/* h2, ikkje h4: kolonneoverskriftene i footeren er sideseksjonar på øvste
+   nivå, og h4 gav eit hopp frå h1 på sider utan andre underoverskrifter.
+   Storleik og luft er låste til det h4 gav, så utsjånaden er uendra. */
+.footer-grid h2 {
   font-family: var(--font-heading);
   color: #fff;
-  margin-top: 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0 0 1.33em;
 }
 
 .footer-contact-col {
