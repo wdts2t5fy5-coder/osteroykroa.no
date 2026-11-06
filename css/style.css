@@ -625,8 +625,9 @@ section.alt {
   gap: 7px;
 }
 
-/* Metas merke skal stå uendra: rein kvit glyph, ingen farge, skugge,
-   omriss eller bakgrunn lagt på. */
+/* Metas merke skal stå uendra: ingen omfarging, skugge, omriss eller
+   bakgrunn lagt på. Footeren brukar den kvite varianten mot raudt,
+   kontaktsida fargeversjonen mot kvitt — begge er offisielle filer. */
 .social-links a img {
   width: 17px;
   height: 17px;
