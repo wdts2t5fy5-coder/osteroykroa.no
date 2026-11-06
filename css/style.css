@@ -752,8 +752,15 @@ section.alt {
    Med object-fit:cover syner mobil berre dei midtre ~34% av breidda.
    25% skyv utsnittet mot venstre slik at «Osterøykroa»-plakaten og
    Jafs-logoen kjem med.                                                 */
+.hero-photo {
+  height: 480px;
+}
+
 @media (max-width: 780px) {
+  /* Lågare bilete syner meir av breidda, slik at begge Jafs-logoane
+     (17% og 55%) får plass saman med plakaten. */
   .hero-photo {
-    object-position: 20% center;
+    height: 400px;
+    object-position: 27% center;
   }
 }
