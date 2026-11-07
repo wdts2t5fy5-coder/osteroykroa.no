@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="nn">
+<head><meta charset="utf-8"><title>Test av lukelogikk</title></head>
+<body>
+<pre id="ut">køyrer…</pre>
+<script src="slots.js"></script>
+<script>
+var resultat = [];
+function sjekk(namn, fekk, venta) {
+  var ok = JSON.stringify(fekk) === JSON.stringify(venta);
+  resultat.push({ ok: ok, namn: namn, fekk: fekk, venta: venta });
+}
+
+// Onsdag 11. november 2026 (opningstid 11–21). Månad er 0-indeksert.
+function ons(t, m) { return new Date(2026, 10, 11, t, m, 0); }
+function neste(now, opptekne) {
+  var n = nesteLedige({ now: now, opptekne: opptekne || [] });
+  return n ? n.tid : null;
+}
+
+// --- Roy sine eigne døme ---
+sjekk('13:04 -> neste er 13:30', neste(ons(13, 4)), '13:30');
+sjekk('13:15 er siste minutt for 13:30', neste(ons(13, 15)), '13:30');
+sjekk('13:16 -> 13:30 er tapt, neste er 14:00', neste(ons(13, 16)), '14:00');
+sjekk('13:30 teken -> neste er 14:00', neste(ons(13, 4), ['13:30']), '14:00');
+
+// --- Grensa rundt 15-minuttarsregelen ---
+sjekk('13:14 -> 13:30', neste(ons(13, 14)), '13:30');
+sjekk('13:17 -> 14:00', neste(ons(13, 17)), '14:00');
+sjekk('13:45 er siste minutt for 14:00', neste(ons(13, 45)), '14:00');
+sjekk('13:46 -> 14:30', neste(ons(13, 46)), '14:30');
+
+// --- Opning og stenging ---
+sjekk('før opning (09:00) -> første luka 11:00', neste(ons(9, 0)), '11:00');
+sjekk('10:45 -> 11:00', neste(ons(10, 45)), '11:00');
+sjekk('siste luka onsdag er 20:30', (function () {
+  var l = ledigeLuker({ now: ons(9, 0) });
+  return l[l.length - 1].tid;
+})(), '20:30');
+sjekk('20:16 -> ingen fleire luker i dag', neste(ons(20, 16)), null);
+sjekk('etter stenging (22:00) -> ingen luker', neste(ons(22, 0)), null);
+
+// --- Alle luker opptekne ---
+sjekk('alt teke -> null', (function () {
+  var alle = ledigeLuker({ now: ons(9, 0) }).map(function (l) { return l.tid; });
+  return neste(ons(9, 0), alle);
+})(), null);
+
+// --- Passerte luker skal vere borte frå lista ---
+sjekk('kl 15:00 inneheld lista ikkje 11:00', (function () {
+  return ledigeLuker({ now: ons(15, 0) }).some(function (l) { return l.tid === '11:00'; });
+})(), false);
+sjekk('kl 15:00 startar lista på 15:30', ledigeLuker({ now: ons(15, 0) })[0].tid, '15:30');
+
+// --- Opptekne luker blir viste, men merkte som ikkje ledige ---
+sjekk('oppteken luke er framleis i lista', (function () {
+  var l = ledigeLuker({ now: ons(13, 0), opptekne: ['13:30'] });
+  return l[0].tid + ' ledig=' + l[0].ledig;
+})(), '13:30 ledig=false');
+
+// --- Andre vekedagar ---
+sjekk('laurdag opnar 13:00', (function () {
+  var lau = new Date(2026, 10, 14, 9, 0, 0); // 14. nov 2026 er ein laurdag
+  return lau.getDay() === 6 ? ledigeLuker({ now: lau })[0].tid : 'feil dag';
+})(), '13:00');
+sjekk('laurdag siste luka er 21:30', (function () {
+  var lau = new Date(2026, 10, 14, 9, 0, 0);
+  var l = ledigeLuker({ now: lau });
+  return l[l.length - 1].tid;
+})(), '21:30');
+sjekk('sundag opnar 13:00 og sluttar 20:30', (function () {
+  var sun = new Date(2026, 10, 15, 9, 0, 0);
+  var l = ledigeLuker({ now: sun });
+  return sun.getDay() === 0 ? l[0].tid + '–' + l[l.length - 1].tid : 'feil dag';
+})(), '13:00–20:30');
+
+var feil = resultat.filter(function (r) { return !r.ok; });
+document.getElementById('ut').textContent =
+  resultat.map(function (r) {
+    return (r.ok ? 'OK   ' : 'FEIL ') + r.namn +
+      (r.ok ? '' : '\n       fekk ' + JSON.stringify(r.fekk) + ', venta ' + JSON.stringify(r.venta));
+  }).join('\n') + '\n\n' + (resultat.length - feil.length) + '/' + resultat.length + ' testar passerte.';
+window.__testresultat = { totalt: resultat.length, feil: feil };
+</script>
+</body>
+</html>
