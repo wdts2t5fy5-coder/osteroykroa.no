@@ -30,6 +30,14 @@ var OPPSETT = {
     { id: 'bacon', namn: 'Bacon', pris: 20 }
   ],
 
+  // Kostar ingenting, men er AV frå start — dette er noko kunden legg
+  // til, ikkje noko han tek bort. Mange spør om det på telefonen, så
+  // det ville blitt sakna om det berre fanst munnleg.
+  sausar: [
+    { id: 'kebabsaus', namn: 'Kebabsaus' },
+    { id: 'bearnaise', namn: 'Bearnaise' }
+  ],
+
   // Følgjer med. Ingen prisendring om dei blir tekne bort.
   // Skrivemåten følgjer menyen («løk», ikkje «lauk»), slik at kunden
   // kjenner att det same ordet båe stader.
@@ -61,8 +69,9 @@ function prisFor(storleikId) {
 var nesteId = 1;
 
 function nyLinje() {
-  var l = { id: nesteId++, namn: '', storleik: 'enkel', ekstra: {}, tilbehoer: {} };
+  var l = { id: nesteId++, namn: '', storleik: 'enkel', ekstra: {}, sausar: {}, tilbehoer: {} };
   OPPSETT.ekstra.forEach(function (e) { l.ekstra[e.id] = true; });        // på frå start
+  OPPSETT.sausar.forEach(function (s) { l.sausar[s.id] = false; });       // AV frå start
   OPPSETT.tilbehoer.forEach(function (t) { l.tilbehoer[t.id] = true; });  // på frå start
   return l;
 }
@@ -165,6 +174,9 @@ function byggLinje(l, i) {
   /* — ekstra som kostar — */
   kort.appendChild(bolk('Vil du ha noko ekstra?', chipRad(OPPSETT.ekstra, l.ekstra, l, true)));
 
+  /* — saus, gratis, av frå start — */
+  kort.appendChild(bolk('Litt saus attåt?', chipRad(OPPSETT.sausar, l.sausar, l, false)));
+
   /* — tilbehøyr som følgjer med — */
   kort.appendChild(bolk('På burgeren — hak bort det du ikkje vil ha',
     chipRad(OPPSETT.tilbehoer, l.tilbehoer, l, false)));
@@ -253,13 +265,19 @@ function teiknOppsummering() {
     var utan = OPPSETT.tilbehoer
       .filter(function (t) { return !l.tilbehoer[t.id]; })
       .map(function (t) { return t.namn.toLowerCase(); });
+
+    // Ekstra og saus står saman i «med», sidan kunden ikkje tenkjer på
+    // dei som to kategoriar — berre som ting han har lagt på.
     var med = OPPSETT.ekstra
       .filter(function (e) { return l.ekstra[e.id]; })
-      .map(function (e) { return e.namn.toLowerCase(); });
+      .map(function (e) { return e.namn.toLowerCase(); })
+      .concat(OPPSETT.sausar
+        .filter(function (s) { return l.sausar[s.id]; })
+        .map(function (s) { return s.namn.toLowerCase(); }));
 
     var detaljar = [];
-    if (med.length) detaljar.push('med ' + med.join(' og '));
-    if (utan.length) detaljar.push('utan ' + utan.join(', '));
+    if (med.length) detaljar.push('med ' + somListe(med));
+    if (utan.length) detaljar.push('utan ' + somListe(utan));
 
     var rad = document.createElement('div');
     rad.className = 'sum-rad';
@@ -280,6 +298,13 @@ function teiknOppsummering() {
   knapp.textContent = ordre.luke
     ? 'Betal ' + totalPris() + ',- med Vipps'
     : 'Vel ei hentetid';
+}
+
+/* «ost», «ost og bacon», «ost, bacon og kebabsaus» — ikkje «ost og bacon
+   og kebabsaus», som er det ein naiv join gjev når det blir tre ting. */
+function somListe(ord) {
+  if (ord.length < 2) return ord.join('');
+  return ord.slice(0, -1).join(', ') + ' og ' + ord[ord.length - 1];
 }
 
 function escapeHtml(s) {
