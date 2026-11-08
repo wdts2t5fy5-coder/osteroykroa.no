@@ -12,6 +12,17 @@
   margin-bottom: 36px;
 }
 
+/* ── Produktbilete ────────────────────────────────────────────── */
+.produktbilete {
+  display: block;
+  width: 100%;
+  max-width: 400px;   /* ståande plakat; i full breidd ville han skuve
+                         heile bestillinga under skjermkanten */
+  height: auto;
+  margin: 0 auto 28px;
+  border-radius: 12px;
+}
+
 /* ── Intro ────────────────────────────────────────────────────── */
 .intro {
   margin: -8px 0 40px;

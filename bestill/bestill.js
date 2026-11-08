@@ -62,9 +62,30 @@ var OPPSETT = {
     { id: 'sylteagurk', namn: 'Sylteagurk' }
   ],
 
-  maksBurgarar: 10,
+  maksMenyar: 10,
   telefon: '56 19 34 34',
-  telefonLenke: '+4756193434'
+  telefonLenke: '+4756193434',
+
+  // Forslag som blir «skrivne» i namnefeltet når det står tomt.
+  // Korte er best: eit langt forslag brukar lang tid på å skrivast og
+  // slettast, og rytmen i rotasjonen blir ujamn.
+  namneforslag: [
+    'Meg sjølv',
+    'Ein venn',
+    'Kjærasten',
+    'Mor',
+    'Far',
+    'Storebror',
+    'Veslesyster',
+    'Tanta',
+    'Cowboyen',
+    'Ein eg er glad i',
+    'Ein som fortener det'
+  ],
+
+  // Vist i staden for animasjonen når feltet har fokus, og for alle
+  // felt utanom det første tomme.
+  namnPlassHaldar: 'Skriv eit namn'
 };
 
 function prisFor(storleikId) {
@@ -115,7 +136,7 @@ function totalPris() {
 }
 
 function visingsnamn(l, i) {
-  return l.namn.trim() || ('Burger ' + (i + 1));
+  return l.namn.trim() || ('Meny ' + (i + 1));
 }
 
 /* ──────────────────────────────────────────────────────────────────
@@ -133,7 +154,7 @@ function teiknLinjer() {
   });
 
   var leggTil = document.getElementById('legg-til');
-  var full = ordre.linjer.length >= OPPSETT.maksBurgarar;
+  var full = ordre.linjer.length >= OPPSETT.maksMenyar;
   leggTil.disabled = full;
   document.getElementById('stor-ordre').hidden = !full;
 }
@@ -148,12 +169,12 @@ function byggLinje(l, i) {
 
   var merkelapp = document.createElement('label');
   merkelapp.className = 'namnefelt';
-  merkelapp.innerHTML = '<span>Kven er burgeren til?</span>';
+  merkelapp.innerHTML = '<span>Kven er menyen til?</span>';
 
   var felt = document.createElement('input');
   felt.type = 'text';
   felt.value = l.namn;
-  felt.placeholder = 't.d. Theodor';
+  felt.placeholder = OPPSETT.namnPlassHaldar;
   felt.maxLength = 24;
   felt.autocomplete = 'off';
   felt.addEventListener('input', function () {
@@ -362,6 +383,73 @@ function teiknOppsummering() {
     : 'Vel ei hentetid';
 }
 
+/* ──────────────────────────────────────────────────────────────────
+   Skrivemaskin i namnefeltet
+
+   Forslaga blir «skrivne» og «sletta» i plasshaldaren, som eit hint om
+   kva feltet er til. Tre val er verdt å merke seg:
+
+   1. Berre det FØRSTE tomme feltet animerer. Fem felt som skriv same
+      ordet i takt ser ut som ein feil, ikkje som ein effekt.
+   2. Animasjonen stoppar med ein gong feltet får fokus eller innhald.
+      Ein plasshaldar som skriv medan du skriv er berre støy.
+   3. prefers-reduced-motion slår han heilt av. Rørsle som ikkje kan
+      skruast av er eit tilgjengeproblem, ikkje ein detalj.
+
+   Tilstanden ligg utanfor DOM-en med vilje: teiknAlt() byggjer linjene
+   på nytt ved kvart klikk, og ein animasjon festa til elementet ville
+   då starta på nytt heile tida.
+   ────────────────────────────────────────────────────────────────── */
+function startSkrivemaskin() {
+  var forslag = OPPSETT.namneforslag;
+  if (!forslag || !forslag.length) return;
+
+  var roleg = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function tommeFelt() {
+    return Array.prototype.filter.call(
+      document.querySelectorAll('.namnefelt input'),
+      function (f) { return !f.value && f !== document.activeElement; });
+  }
+
+  function vis(tekst) {
+    var alle = document.querySelectorAll('.namnefelt input');
+    var tomme = tommeFelt();
+    Array.prototype.forEach.call(alle, function (f) {
+      f.placeholder = (f === tomme[0]) ? tekst : OPPSETT.namnPlassHaldar;
+    });
+  }
+
+  if (roleg) {
+    vis(forslag[0]);
+    setInterval(function () { vis(forslag[0]); }, 400);
+    return;
+  }
+
+  var i = 0, n = 0, slettar = false;
+
+  function tikk() {
+    var ord = forslag[i];
+    var vent;
+
+    if (!slettar) {
+      n++;
+      if (n >= ord.length) { slettar = true; vent = 1900; }
+      else vent = 58 + Math.random() * 50; // ujamn takt les som ei hand
+    } else {
+      n--;
+      if (n <= 0) { slettar = false; i = (i + 1) % forslag.length; vent = 450; }
+      else vent = 30;
+    }
+
+    vis(ord.slice(0, n) + (n < ord.length ? '|' : ''));
+    setTimeout(tikk, vent);
+  }
+
+  tikk();
+}
+
 /* «ost», «ost og bacon», «ost, bacon og kebabsaus» — ikkje «ost og bacon
    og kebabsaus», som er det ein naiv join gjev når det blir tre ting. */
 function somListe(ord) {
@@ -386,7 +474,7 @@ function teiknAlt() {
    ────────────────────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('legg-til').addEventListener('click', function () {
-    if (ordre.linjer.length < OPPSETT.maksBurgarar) {
+    if (ordre.linjer.length < OPPSETT.maksMenyar) {
       ordre.linjer.push(nyLinje());
       teiknAlt();
       var felt = document.querySelectorAll('#linjer input[type=text]');
@@ -404,6 +492,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   teiknAlt();
+  startSkrivemaskin();
 
   // Luker forsvinn etter kvart som tida går. Utan dette kunne ein kunde
   // sitje med sida open og velje ei luke som nett blei for nær i tid.
