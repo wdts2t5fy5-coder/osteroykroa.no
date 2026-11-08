@@ -984,3 +984,12 @@ textarea {
     object-position: 27% center;
   }
 }
+
+.legal-oppdatert {
+  margin-top: 36px;
+  padding-top: 18px;
+  border-top: 1px solid var(--color-border);
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}

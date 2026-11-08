@@ -16,11 +16,11 @@ var OPPSETT = {
   // som går utan svar er eit minutt nærare ei henting som ikkje held.
   eskalerSekund: 60,      // kvittert, men ugodteken så lenge → påminning
 
-  // 6 sekund var for tett. Klangen varer halvanna, så det opplevdest
-  // som éin samanhengande lyd. 14 gjev fire–fem ring i minuttet: nok
-  // til at ingen går forbi henne, lite nok til at ho framleis er eit
-  // varsel og ikkje ein tilstand.
-  ringKvartSekund: 14,    // medan ingen har kvittert
+  // Lyden høyrer saman med den blinkande skjermen og skal opplevast
+  // samanhengande. Klangen varer knapt to sekund, så fire gjev ein kort
+  // pust mellom kvar — nok til at det ikkje blir grøt, tett nok til at
+  // det ikkje er til å oversjå.
+  ringKvartSekund: 4,     // medan ingen har kvittert
   paaminningSekund: 120,  // kvittert, men framleis ikkje godteken
 
   telefonRoy: '+4756193434'
@@ -483,8 +483,30 @@ function oppdaterKlokke() {
  * bak ein omstart.
  */
 var sett = {};
-var sistRing = 0;
 var sistMinning = 0;
+
+/* Ringinga har eigen takt.
+ *
+ * Resten av skjermen oppdaterer seg kvart femte sekund, og det er for
+ * sakte for ein lyd som skal følgje den blinkande skjermen. Difor eigen
+ * timar: han startar når alarmen kjem opp og blir stoppa med ein gong
+ * nokon kvitterer, slik at det aldri heng att eit ring etterpå.
+ */
+var ringTimar = null;
+
+function startRinging() {
+  if (ringTimar) return;          // alt i gang
+  Lyd.ring();
+  ringTimar = setInterval(function () {
+    Lyd.ring();
+  }, OPPSETT.ringKvartSekund * 1000);
+}
+
+function stoppRinging() {
+  if (!ringTimar) return;
+  clearInterval(ringTimar);
+  ringTimar = null;
+}
 
 /** Ordrar ingen har kvittert for enno. Desse tek heile skjermen. */
 function heiltNye() {
@@ -523,14 +545,11 @@ function sjekkVarsel() {
   alarm.hidden = !nye.length;
 
   if (nye.length) {
-    if (no - sistRing >= OPPSETT.ringKvartSekund * 1000) {
-      sistRing = no;
-      Lyd.ring();
-    }
+    startRinging();
     return;
   }
 
-  sistRing = 0;
+  stoppRinging();
 
   var gl = gloymde();
   if (!gl.length) { sistMinning = 0; return; }
@@ -545,7 +564,7 @@ function kvitter() {
     if (o.status === 'ny') sett[o.id] = no;
   });
   document.getElementById('alarm').hidden = true;
-  sistRing = 0;
+  stoppRinging();     // ingen ring skal henge att etter trykket
   sistMinning = no;   // påminninga startar på nytt, ikkje med ein gong
 }
 
