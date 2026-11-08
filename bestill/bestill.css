@@ -1,0 +1,283 @@
+/* Bestillingssida. Byggjer på variablane i /css/style.css. */
+
+.bestill {
+  max-width: 680px;
+  padding-top: 8px;
+  padding-bottom: 48px;
+}
+
+.bestill-ingress {
+  color: var(--color-text-muted);
+  margin-top: -8px;
+  margin-bottom: 36px;
+}
+
+/* ── Steg ─────────────────────────────────────────────────────── */
+.steg {
+  margin-bottom: 40px;
+  padding-bottom: 36px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.steg:last-child {
+  border-bottom: 0;
+}
+
+.steg h2 {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  color: var(--color-primary-dark);
+  margin: 0 0 18px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+/* Nummeret er dekor: skjermlesaren les overskrifta, ikkje sifferet. */
+.steg-nr {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.steg-hjelp {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin: 16px 0 0;
+}
+
+/* ── Storleiksval ─────────────────────────────────────────────── */
+.val-kort-rad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.val-kort {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 18px 10px;
+  background: #fff;
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  color: inherit;
+  text-align: center;
+  transition: border-color 0.12s, background 0.12s;
+}
+
+.val-kort:hover {
+  border-color: var(--color-primary);
+}
+
+.val-kort.er-valt {
+  border-color: var(--color-primary);
+  background: #fdf1f2;
+}
+
+.val-kort-namn {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  line-height: 1.25;
+}
+
+.val-kort-gram {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.val-kort-pris {
+  margin-top: 5px;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+/* ── Talveljar ────────────────────────────────────────────────── */
+.tal-veljar {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 2px solid var(--color-border);
+  border-radius: 999px;
+  background: #fff;
+  padding: 4px;
+}
+
+.tal-veljar button {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-bg-alt);
+  color: var(--color-primary-dark);
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.tal-veljar button:hover:not(:disabled) {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.tal-veljar button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+#tal-verdi {
+  min-width: 46px;
+  text-align: center;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+/* ── Hentetider ───────────────────────────────────────────────── */
+.luke-rad {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.luke {
+  padding: 10px 16px;
+  min-width: 78px;
+  background: #fff;
+  border: 2px solid var(--color-border);
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+}
+
+.luke:hover:not(:disabled) {
+  border-color: var(--color-primary);
+}
+
+.luke.er-valt {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+}
+
+/* Tekne luker blir ståande, men tydeleg daude. Å skjule dei ville gjort
+   det uklart kvifor tidene hoppar. */
+.luke.er-teken {
+  opacity: 0.4;
+  cursor: default;
+  text-decoration: line-through;
+}
+
+.luker-tomt {
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* ── Oppsummering ─────────────────────────────────────────────── */
+.oppsummering {
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 26px 24px 24px;
+}
+
+.sum {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 20px;
+  margin: 0 0 22px;
+}
+
+.sum dt {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.sum dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+}
+
+.sum-total {
+  font-size: 1.2rem;
+  color: var(--color-primary-dark);
+}
+
+/* .btn i hovudstilarket er kvit med raud tekst — laga for den raude
+   hero-seksjonen. Her står knappen på lys bakgrunn, så fargane må snuast.
+   (Forsida gjer det same med ein inline-style på «Sjå menyen»; det bør
+   bli ein skikkeleg .btn-primary-klasse ved høve.) */
+.btn-betal {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: var(--color-primary);
+  color: #fff;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-betal:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+}
+
+.btn-betal:disabled {
+  background: var(--color-border);
+  color: var(--color-text-muted);
+  cursor: default;
+}
+
+/* ── Merknader ────────────────────────────────────────────────── */
+.merknad {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: #fff;
+  border-left: 4px solid var(--color-accent);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.merknad-aatvaring {
+  border-left-color: var(--color-primary);
+}
+
+/* ── Mobil ────────────────────────────────────────────────────── */
+@media (max-width: 560px) {
+  .val-kort-rad {
+    grid-template-columns: 1fr;
+  }
+
+  .val-kort {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: baseline;
+    text-align: left;
+    padding: 14px 16px;
+  }
+
+  .val-kort-pris {
+    margin-top: 0;
+  }
+}

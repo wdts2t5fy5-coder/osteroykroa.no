@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="nn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bestill Osterøyburger – Osterøykroa</title>
+  <meta name="description" content="Bestill Osterøyburger på nett og hent han ferdig til tida du vel.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/css/style.css?v=22">
+  <link rel="stylesheet" href="/bestill/bestill.css?v=1">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container">
+      <div class="brand">
+        <img decoding="async" width="124" height="150" class="brand-badge" src="/images/jafs-25ar.webp" alt="Jafs – 25 år med fabelaktig fastfood">
+        <a href="/" class="logo"><img decoding="async" width="760" height="131" src="/images/logo.webp" alt="Osterøykroa – Der godtfolk treffest!"></a>
+      </div>
+      <button class="nav-toggle" aria-label="Opne meny">&#9776;</button>
+      <nav class="main-nav">
+        <ul>
+          <li><a href="/">Heim</a></li>
+          <li><a href="/meny">Meny</a></li>
+          <li><a href="/om-oss">Om oss</a></li>
+          <li><a href="/kontakt">Kontakt</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <div class="container bestill">
+
+        <h1>Bestill Osterøyburger</h1>
+        <p class="bestill-ingress">
+          Vel storleik og når du vil hente. Me lagar han ferdig til tida du vel,
+          så du slepp å vente.
+        </p>
+
+        <!-- 1 ───────────────────────────────────────────────── -->
+        <section class="steg" aria-labelledby="steg-1">
+          <h2 id="steg-1"><span class="steg-nr">1</span> Kor sulten er du?</h2>
+          <div id="storleikar" class="val-kort-rad"></div>
+          <p class="steg-hjelp">Alle prisar er inkl. mva. og gjeld henting.</p>
+        </section>
+
+        <!-- 2 ───────────────────────────────────────────────── -->
+        <section class="steg" aria-labelledby="steg-2">
+          <h2 id="steg-2"><span class="steg-nr">2</span> Kor mange?</h2>
+          <div class="tal-veljar">
+            <button type="button" id="tal-ned" aria-label="Færre">&minus;</button>
+            <span id="tal-verdi" aria-live="polite">1</span>
+            <button type="button" id="tal-opp" aria-label="Fleire">+</button>
+          </div>
+
+          <div id="stor-ordre" class="merknad" hidden>
+            <strong>Skal du ha meir enn 10?</strong>
+            Det hjelper me gjerne med — me treng berre litt meir tid på å få det klart.
+            Ring oss på <a id="telefon-stor-ordre" href="tel:+4756193434">56 19 34 34</a>,
+            så finn me ei løysing saman.
+          </div>
+        </section>
+
+        <!-- 3 ───────────────────────────────────────────────── -->
+        <section class="steg" aria-labelledby="steg-3">
+          <h2 id="steg-3"><span class="steg-nr">3</span> Når vil du hente?</h2>
+          <div id="luker" class="luke-rad"></div>
+          <p class="steg-hjelp">
+            Me treng minst eit kvarter på å lage maten, så den næraste tida kan
+            vere litt fram i tid. Ei tid som alt er teken, er borte.
+          </p>
+        </section>
+
+        <!-- 4 ───────────────────────────────────────────────── -->
+        <section class="steg oppsummering" aria-labelledby="steg-4">
+          <h2 id="steg-4"><span class="steg-nr">4</span> Oppsummering</h2>
+          <dl class="sum">
+            <dt>Bestilling</dt><dd id="sum-linje">Ingen burger vald enno</dd>
+            <dt>Hentetid</dt><dd id="sum-tid">Inga hentetid vald</dd>
+            <dt>Å betale</dt><dd id="sum-total" class="sum-total">–</dd>
+          </dl>
+
+          <button type="button" id="betal" class="btn btn-betal" disabled>
+            Vel burger og hentetid
+          </button>
+
+          <div id="vipps-mangler" class="merknad merknad-aatvaring" hidden>
+            <strong>Betaling er ikkje kopla til enno.</strong>
+            Vipps-avtalen er i bestilling. Når ho er på plass, går du herifrå
+            rett til Vipps, og luka blir halden av for deg medan du betaler.
+          </div>
+
+          <p class="steg-hjelp">
+            Du hentar i Lonevågen 2. Me ringjer deg om noko skulle skje med
+            bestillinga.
+            <a href="/allergener">Sjå allergenoversikta</a>.
+          </p>
+        </section>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom">
+        &copy; 2026 Osterøykroa AS &middot; Org.nr. 999 314 163 MVA<br>
+        <a href="/allergener">Allergenar</a> &middot; <a href="/personvern">Personvern</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/main.js?v=4"></script>
+  <script src="/bestill/slots.js?v=1"></script>
+  <script src="/bestill/bestill.js?v=1"></script>
+</body>
+</html>
