@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="nn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Grillskjerm – Osterøykroa</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#14110f">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <!-- Nettbrettet skal kunne leggjast til på heimskjermen og køyre utan nettlesarkrom -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="stylesheet" href="/grill/grill.css?v=1">
+</head>
+<body id="body">
+
+  <header class="grill-topp">
+    <div class="topp-venstre">
+      <span id="klokke" class="klokke">--:--</span>
+      <span class="merkenamn">Osterøykroa · grill</span>
+    </div>
+
+    <div class="topp-tal">
+      <span class="tal tal--ny"><strong id="tal-nye">0</strong> nye</span>
+      <span class="tal"><strong id="tal-paagaar">0</strong> i arbeid</span>
+    </div>
+
+    <div class="topp-hogre">
+      <button type="button" id="lydstatus" class="toppknapp av">Lyd AV — trykk her</button>
+      <button type="button" id="steng-luke" class="toppknapp">Steng neste luke</button>
+    </div>
+  </header>
+
+  <p id="vakenstatus" class="vakenvarsel" hidden>
+    Skjermen kan sovne av seg sjølv. Set skjermtida til «aldri» i innstillingane på nettbrettet.
+  </p>
+
+  <main>
+    <section id="blokk-nye" class="blokk blokk--nye" hidden>
+      <h2>Nye — må godtakast</h2>
+      <div id="nye" class="ordreliste"></div>
+    </section>
+
+    <section class="blokk">
+      <h2>I arbeid</h2>
+      <div id="aktive" class="ordreliste"></div>
+      <p id="tomt" class="tomt" hidden>Ingen ordre akkurat no.</p>
+    </section>
+
+    <section id="blokk-ferdige" class="blokk blokk--ferdige" hidden>
+      <h2>Ferdige i dag</h2>
+      <div id="ferdige" class="ordreliste"></div>
+    </section>
+  </main>
+
+  <footer id="testverktoy" class="testverktoy">
+    <span class="testmerke">TESTVERSJON</span>
+    <span>Ingen av desse ordrane er verkelege. Dei ligg berre i denne nettlesaren.</span>
+    <button type="button" id="testordre" class="toppknapp">Lag testordre</button>
+    <button type="button" id="tom-test" class="toppknapp">Tøm</button>
+  </footer>
+
+  <script src="/bestill/slots.js?v=1"></script>
+  <script src="/grill/ordrekjelde.js?v=1"></script>
+  <script src="/grill/grill.js?v=1"></script>
+</body>
+</html>
