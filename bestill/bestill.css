@@ -81,10 +81,15 @@
   }
 
   /* Oppsummeringa følgjer med nedover, så totalen og betalknappen
-     aldri forsvinn medan ein byggjer menyane. */
+     aldri forsvinn medan ein byggjer menyane.
+
+     Ho festar seg under headeren, ikkje mot toppen av vindauget.
+     --fast-topp blir målt av main.js og dekkjer headeren pluss
+     testbandet når det er der. Fallbacken gjeld berre dei millisekunda
+     før skriptet har køyrt. */
   .bestill-side {
     position: sticky;
-    top: 20px;
+    top: calc(var(--fast-topp, 80px) + 18px);
   }
 
   .bestill-side .steg {

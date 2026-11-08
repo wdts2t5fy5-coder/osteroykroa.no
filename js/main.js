@@ -20,6 +20,7 @@
   document.addEventListener('DOMContentLoaded', function () {
     var bar = document.createElement('div');
     bar.setAttribute('role', 'status');
+    bar.setAttribute('data-testband', '');
     bar.textContent = 'TESTVERSJON — ikkje den ekte sida. Bestillingar her er ikkje reelle.';
     bar.style.cssText = [
       'position:sticky', 'top:0', 'z-index:9999',
@@ -29,6 +30,46 @@
       'padding:7px 14px'
     ].join(';');
     document.body.insertBefore(bar, document.body.firstChild);
+  });
+})();
+
+/* Høgda på det som ligg fast øvst: headeren, og testbandet når det finst.
+ *
+ * Sticky-element lenger nede på sida — som oppsummeringa i bestillinga —
+ * må feste seg under dette, ikkje mot toppen av vindauget, elles glir dei
+ * inn bak headeren.
+ *
+ * Verdien blir målt og ikkje skriven inn fast, fordi headeren er lågare
+ * på mobil enn på skjerm, og fordi testbandet berre finst utanfor
+ * produksjon. Eit fast tal ville vore rett i nøyaktig eitt tilfelle.
+ */
+(function () {
+  function oppdaterFastTopp() {
+    var h = 0;
+
+    // Det som tel er kor langt ned det nedste faste elementet rekk —
+    // ikkje summen av dei. Testbandet og headeren festar seg begge på
+    // 0 og ligg difor oppå kvarandre; å leggje dei saman gav 132 px
+    // der sperra i røynda sluttar på 101.
+    ['[data-testband]', '.site-header'].forEach(function (sel) {
+      var el = document.querySelector(sel);
+      if (!el) return;
+      var cs = getComputedStyle(el);
+      if (cs.position !== 'sticky' && cs.position !== 'fixed') return;
+      var topp = parseFloat(cs.top) || 0;
+      h = Math.max(h, topp + el.getBoundingClientRect().height);
+    });
+
+    document.documentElement.style.setProperty('--fast-topp', Math.round(h) + 'px');
+  }
+
+  document.addEventListener('DOMContentLoaded', oppdaterFastTopp);
+  window.addEventListener('load', oppdaterFastTopp); // bilete kan endre høgda
+
+  var vent;
+  window.addEventListener('resize', function () {
+    clearTimeout(vent);
+    vent = setTimeout(oppdaterFastTopp, 120);
   });
 })();
 
