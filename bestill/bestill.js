@@ -30,6 +30,18 @@ var OPPSETT = {
     { id: 'bacon', namn: 'Bacon', pris: 20 }
   ],
 
+  // Drikke følgjer med menyen. Eitt val må stå, så denne gruppa oppfører
+  // seg som radioknappar: å trykkje på den valde slår han ikkje av.
+  // Energidrikk har aldersgrense, sjå ALDERSGRENSE under.
+  drikke: [
+    { id: 'mineralvatn',  namn: 'Mineralvatn', pris: 0 },
+    { id: 'energidrikk',  namn: 'Energidrikk', pris: 10, aldersgrense: 16 }
+  ],
+
+  ALDERSGRENSE_TEKST:
+    'Energidrikk krev at du er over 16 år. Er me i tvil, spør me om ' +
+    'legitimasjon når du hentar.',
+
   // Kostar ingenting, men er AV frå start — dette er noko kunden legg
   // til, ikkje noko han tek bort. Mange spør om det på telefonen, så
   // det ville blitt sakna om det berre fanst munnleg.
@@ -70,11 +82,22 @@ function prisFor(storleikId) {
 var nesteId = 1;
 
 function nyLinje() {
-  var l = { id: nesteId++, namn: '', storleik: 'enkel', ekstra: {}, sausar: {}, tilbehoer: {} };
+  var l = {
+    id: nesteId++, namn: '', storleik: 'enkel',
+    ekstra: {}, drikke: {}, sausar: {}, tilbehoer: {}
+  };
   OPPSETT.ekstra.forEach(function (e) { l.ekstra[e.id] = true; });        // på frå start
+  OPPSETT.drikke.forEach(function (d, i) { l.drikke[d.id] = i === 0; });  // mineralvatn
   OPPSETT.sausar.forEach(function (s) { l.sausar[s.id] = false; });       // AV frå start
   OPPSETT.tilbehoer.forEach(function (t) { l.tilbehoer[t.id] = true; });  // på frå start
   return l;
+}
+
+function valdDrikke(l) {
+  for (var i = 0; i < OPPSETT.drikke.length; i++) {
+    if (l.drikke[OPPSETT.drikke[i].id]) return OPPSETT.drikke[i];
+  }
+  return OPPSETT.drikke[0];
 }
 
 var ordre = { linjer: [nyLinje()], luke: null };
@@ -83,6 +106,7 @@ var opptekneLuker = []; // kjem frå tenaren når han finst
 function linjePris(l) {
   var sum = prisFor(l.storleik);
   OPPSETT.ekstra.forEach(function (e) { if (l.ekstra[e.id]) sum += e.pris; });
+  sum += valdDrikke(l).pris;
   return sum;
 }
 
@@ -173,19 +197,32 @@ function byggLinje(l, i) {
   })()));
 
   /* — topping som kostar — */
-  kort.appendChild(bolk('Topping', chipRad(OPPSETT.ekstra, l.ekstra, l, true)));
+  kort.appendChild(bolk('Topping', chipRad(OPPSETT.ekstra, l.ekstra, { visPris: true })));
 
   /* — saus, gratis, av frå start, anten–eller.
        «attåt» ville tydd ved sida av, i ei skål. Denne sausen går på
        burgeren, så det måtte seiast. — */
   kort.appendChild(bolk('Litt saus på burgeren? Vel éin',
-    chipRad(OPPSETT.sausar, l.sausar, l, false, true)));
+    chipRad(OPPSETT.sausar, l.sausar, { eksklusiv: true })));
+
+  /* — drikke, som følgjer med menyen — */
+  var drikkebolk = bolk('Drikke til',
+    chipRad(OPPSETT.drikke, l.drikke, { visPris: true, eksklusiv: true, paakravd: true }));
+
+  // Aldersgrensa står berre framme når ho gjeld, rett under valet.
+  if (valdDrikke(l).aldersgrense) {
+    var aldersmerknad = document.createElement('p');
+    aldersmerknad.className = 'aldersmerknad';
+    aldersmerknad.textContent = OPPSETT.ALDERSGRENSE_TEKST;
+    drikkebolk.appendChild(aldersmerknad);
+  }
+  kort.appendChild(drikkebolk);
 
   /* — tilbehøyr som følgjer med.
        Kan ikkje heite «på burgeren» no som sausen gjer det. «Dette
        følgjer med» forklarar dessutan kvifor dei står avkryssa. — */
   kort.appendChild(bolk('Dette følgjer med — hak bort det du ikkje vil ha',
-    chipRad(OPPSETT.tilbehoer, l.tilbehoer, l, false)));
+    chipRad(OPPSETT.tilbehoer, l.tilbehoer, {})));
 
   /* — linjesum — */
   var sum = document.createElement('div');
@@ -207,10 +244,17 @@ function bolk(tittel, innhald) {
   return d;
 }
 
-/* `eksklusiv` gjer gruppa til eit anten–eller: å slå på éin slår av dei
-   andre. Ingen saus er framleis lov — ein trykkjer berre på den valde
-   ein gong til. */
-function chipRad(liste, tilstand, linje, visPris, eksklusiv) {
+/* Tre oppførslar, styrte av `val`:
+     (ingen)      fritt av og på        — topping, tilbehøyr
+     eksklusiv    anten–eller, eller    — saus: éin eller ingen
+                  ingen
+     eksklusiv +  anten–eller, må       — drikke: ein må alltid stå,
+     paakravd     velje éin               så trykk på den valde gjer ingenting
+
+   `visPris` viser «+10» og liknande. Prisen blir utelaten når han er 0,
+   så «Mineralvatn +0» aldri dukkar opp. */
+function chipRad(liste, tilstand, val) {
+  val = val || {};
   var rad = document.createElement('div');
   rad.className = 'chip-rad';
 
@@ -220,12 +264,17 @@ function chipRad(liste, tilstand, linje, visPris, eksklusiv) {
     c.type = 'button';
     c.className = 'chip' + (paa ? ' er-paa' : '');
     c.setAttribute('aria-pressed', paa ? 'true' : 'false');
+
+    var prislapp = (val.visPris && x.pris)
+      ? ' <span class="chip-pris">+' + x.pris + '</span>' : '';
     c.innerHTML =
       '<span class="chip-hake" aria-hidden="true">' + (paa ? '✓' : '+') + '</span>' +
-      x.namn + (visPris ? ' <span class="chip-pris">+' + x.pris + '</span>' : '');
+      x.namn + prislapp;
+
     c.addEventListener('click', function () {
+      if (val.paakravd && paa) return; // det valde kan ikkje slåast av
       var nyVerdi = !tilstand[x.id];
-      if (eksklusiv && nyVerdi) {
+      if (val.eksklusiv && nyVerdi) {
         liste.forEach(function (y) { tilstand[y.id] = false; });
       }
       tilstand[x.id] = nyVerdi;
@@ -288,7 +337,7 @@ function teiknOppsummering() {
         .filter(function (s) { return l.sausar[s.id]; })
         .map(function (s) { return s.namn.toLowerCase(); }));
 
-    var detaljar = [];
+    var detaljar = [valdDrikke(l).namn.toLowerCase()];
     if (med.length) detaljar.push('med ' + somListe(med));
     if (utan.length) detaljar.push('utan ' + somListe(utan));
 
