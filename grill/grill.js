@@ -244,16 +244,18 @@ function byggOrdre(o) {
   o.linjer.forEach(function (l) {
     var li = el('li');
     li.appendChild(el('span', 'linje-namn', l.namn));
-    li.appendChild(el('span', 'linje-produkt', l.produkt));
+
+    // Produktnamn med topping-koden rett bak talet: O, B eller O&B.
+    var p = el('span', 'linje-produkt');
+    p.appendChild(document.createTextNode(l.produkt));
+    var kode = toppingKode(l);
+    if (kode) p.appendChild(el('span', 'topping-kode', kode));
+    li.appendChild(p);
+
+    li.appendChild(gronsakrad(l.gronsaker));
 
     var d = el('span', 'linje-detalj');
-    if (l.med && l.med.length) {
-      d.appendChild(el('span', 'merke-med', '+ ' + l.med.join(', ')));
-    }
-    // Utan-lista er det som oftast går gale, så ho skal rope.
-    if (l.utan && l.utan.length) {
-      d.appendChild(el('span', 'merke-utan', 'UTAN ' + l.utan.join(', ')));
-    }
+    if (l.saus) d.appendChild(el('span', 'merke-saus', l.saus));
     d.appendChild(el('span', 'merke-drikke', l.drikke));
     if (l.aldersgrense) {
       d.appendChild(el('span', 'merke-alder', 'SJEKK ALDER 16+'));
@@ -297,6 +299,57 @@ function byggOrdre(o) {
   kort.appendChild(botn);
 
   return kort;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Topping og grønsaker som kode
+
+   Grillen les kort og mange gonger, ikkje langsamt éin gong. Difor er
+   dette komprimert til teikn som alltid står same stad:
+
+     Osterøymeny 240 O&B     ost og bacon, rett bak storleiken
+     S M D L A               salat, mais, dressing, løk, agurk
+
+   Faste posisjonar er heile poenget. Når mais manglar, er det eit hol
+   der M skulle vore — og auget ser eit hol fortare enn det les eit ord.
+
+   Dei som manglar står att i dempa raudt i staden for heilt blankt.
+   Då treng ein ikkje telje plassar for å sjå kva som er borte, og
+   raudfargen gjer at eit kort med endringar skil seg ut på avstand.
+   ────────────────────────────────────────────────────────────────── */
+var GRONSAKER = [
+  { id: 'salat',      bokstav: 'S', namn: 'salat' },
+  { id: 'mais',       bokstav: 'M', namn: 'mais' },
+  { id: 'dressing',   bokstav: 'D', namn: 'dressing' },
+  { id: 'lok',        bokstav: 'L', namn: 'løk' },
+  { id: 'sylteagurk', bokstav: 'A', namn: 'sylteagurk' }
+];
+
+function toppingKode(l) {
+  if (l.ost && l.bacon) return 'O&B';
+  if (l.ost) return 'O';
+  if (l.bacon) return 'B';
+  return '';
+}
+
+function gronsakrad(g) {
+  g = g || {};
+  var rad = el('div', 'gronsaker');
+  var mangler = [];
+
+  GRONSAKER.forEach(function (x) {
+    var paa = g[x.id] !== false;
+    if (!paa) mangler.push(x.namn);
+    rad.appendChild(el('span', 'g ' + (paa ? 'g--paa' : 'g--av'), x.bokstav));
+  });
+
+  // Bokstavane er ugjennomtrengelege for ein skjermlesar, så meininga
+  // må stå i klartekst ved sida av.
+  rad.setAttribute('aria-label',
+    mangler.length ? 'Utan ' + mangler.join(', ') : 'Alt tilbehøyr');
+  if (mangler.length) rad.classList.add('har-endring');
+
+  return rad;
 }
 
 function finnFase(o, minuttAtt) {

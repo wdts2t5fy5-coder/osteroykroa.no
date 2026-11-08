@@ -451,3 +451,76 @@ main { padding: 18px; }
   .alarm-tittel,
   .alarm-under { color: #fff; }
 }
+
+/* ── Topping-kode og grønsaksrad ──────────────────────────────────
+   Grillen les kort og mange gonger. Difor teikn på faste plassar i
+   staden for ord: auget lærer rekkja og ser eit hol utan å lese. */
+.topping-kode {
+  margin-left: 9px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #3a3128;
+  color: #ffd98a;
+  font-size: 0.82em;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  vertical-align: 2px;
+}
+
+.gronsaker {
+  display: flex;
+  gap: 4px;
+  margin: 2px 0 7px;
+}
+
+/* Fast breidd per bokstav. Utan det flyttar resten seg når ein manglar,
+   og då er heile poenget med faste plassar borte. */
+.g {
+  width: 1.5em;
+  text-align: center;
+  font-size: 1.15rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  border-radius: 5px;
+  padding: 1px 0;
+}
+
+.g--paa { color: var(--m-tekst); background: #2e2a25; }
+
+/* Dempa raudt, ikkje blankt: då ser ein kva som manglar utan å telje
+   plassar, og kort med endringar skil seg ut på avstand. */
+.g--av {
+  color: rgba(224, 42, 60, 0.55);
+  background: rgba(224, 42, 60, 0.1);
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+}
+
+.merke-saus { background: #3a2f16; color: #ffd98a; }
+
+/* ── Logo i botnen ────────────────────────────────────────────────
+   Svært dempa, og låst nede til høgre så han ikkje legg seg bak
+   ordrekorta øvst der auget arbeider. */
+body::before {
+  content: '';
+  position: fixed;
+  right: 3.5%;
+  bottom: 5%;
+  width: min(46vw, 680px);
+  aspect-ratio: 760 / 131;
+  background: url('/images/logo.webp') no-repeat center / contain;
+  filter: brightness(0) invert(1);
+  /* Svak nok til at han aldri konkurrerer med ein ordre. Mot nesten
+     svart botn syner sjølv nokre få prosent kvitt godt. */
+  opacity: 0.032;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body.har-nye::before { opacity: 0.05; }
+
+main,
+.grill-topp,
+.testverktoy,
+.vakenvarsel { position: relative; z-index: 1; }

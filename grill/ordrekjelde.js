@@ -51,7 +51,8 @@
                  'Storebror', 'Lillesøster', 'Damo', 'Typen'];
   var PRODUKT = ['Osterøymeny 120', 'Osterøymeny 240', 'Osterøymeny 360'];
   var PRIS = { 'Osterøymeny 120': 239, 'Osterøymeny 240': 299, 'Osterøymeny 360': 359 };
-  var TILBEHOER = ['salat', 'mais', 'dressing', 'løk', 'sylteagurk'];
+  // Same id-ar som bestillingssida brukar, så dei to snakkar same språk.
+  var TILBEHOER = ['salat', 'mais', 'dressing', 'lok', 'sylteagurk'];
 
   function slump(liste) {
     return liste[Math.floor(Math.random() * liste.length)];
@@ -89,22 +90,25 @@
       var ost = Math.random() > 0.3;
       var bacon = Math.random() > 0.5;
       var energi = Math.random() > 0.75;
-      var utan = TILBEHOER.filter(function () { return Math.random() > 0.82; });
-      var med = [];
-      if (ost) med.push('ost');
-      if (bacon) med.push('bacon');
-      if (Math.random() > 0.7) med.push(slump(['kebabsaus', 'bearnaise']));
+
+      var gronsaker = {};
+      TILBEHOER.forEach(function (g) { gronsaker[g] = Math.random() > 0.18; });
 
       var pris = PRIS[produkt] + (ost ? 20 : 0) + (bacon ? 20 : 0) + (energi ? 10 : 0);
       sum += pris;
 
+      // Forma på ei ordrelinje. Dette er kontrakten grillskjermen les,
+      // og den tenaren skal levere når han kjem: eigne felt for kvar
+      // ting, ikkje lister med tekst. Skjermen skal sleppe å tolke.
       linjer.push({
         namn: slump(FORNAMN),
         produkt: produkt,
+        ost: ost,
+        bacon: bacon,
+        saus: Math.random() > 0.7 ? slump(['Kebabsaus', 'Bearnaise']) : null,
+        gronsaker: gronsaker,
         drikke: energi ? 'Energidrikk' : 'Mineralvatn',
         aldersgrense: energi,
-        med: med,
-        utan: utan,
         pris: pris
       });
     }
