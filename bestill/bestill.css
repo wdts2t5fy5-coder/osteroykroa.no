@@ -1,7 +1,11 @@
 /* Bestillingssida. Byggjer på variablane i /css/style.css. */
 
+/* Sida brukar heile breidda på store skjermar, men ikkje ved å strekkje
+   teksten — lange linjer er tyngre å lese. I staden blir ho delt i to:
+   bestillinga til venstre, oppsummeringa festa til høgre. Då er totalen
+   alltid synleg medan ein byggjer, og tomrommet er borte av seg sjølv. */
 .bestill {
-  max-width: 680px;
+  max-width: 1040px;
   padding-top: 8px;
   padding-bottom: 48px;
 }
@@ -12,7 +16,31 @@
   margin-bottom: 36px;
 }
 
-/* ── Produktbilete ────────────────────────────────────────────── */
+/* ── Grensesnittfont på bestillingssida ──────────────────────────
+   Same regel som elles: serif til å lese, sans til å bruke. Her er
+   det store etikettar, tal og liten hjelpetekst. */
+.steg-hjelp,
+.intro-stikk,
+.bolk-tittel,
+.namnefelt span,
+.aldersmerknad,
+.storleik-gram,
+.storleik-pris,
+.burgerlinje-sum,
+.sum-detalj,
+.sum-pris,
+.sum-total,
+.sum-tid,
+.chip-pris,
+.merknad {
+  font-family: var(--font-ui);
+}
+
+/* ── Toppen: plakat ved sida av introen ───────────────────────── */
+.bestill-topp {
+  margin-bottom: 40px;
+}
+
 .produktbilete {
   display: block;
   width: 100%;
@@ -21,6 +49,56 @@
   height: auto;
   margin: 0 auto 28px;
   border-radius: 12px;
+}
+
+/* ── To spalter ───────────────────────────────────────────────── */
+.bestill-grid {
+  display: block;
+}
+
+@media (min-width: 900px) {
+  .bestill-topp {
+    display: grid;
+    grid-template-columns: minmax(0, 270px) minmax(0, 1fr);
+    gap: 34px;
+    align-items: center;
+  }
+
+  .produktbilete {
+    margin: 0;
+    max-width: none;
+  }
+
+  .bestill-topp .intro {
+    margin: 0;
+  }
+
+  .bestill-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 340px);
+    gap: 40px;
+    align-items: start;
+  }
+
+  /* Oppsummeringa følgjer med nedover, så totalen og betalknappen
+     aldri forsvinn medan ein byggjer menyane. */
+  .bestill-side {
+    position: sticky;
+    top: 20px;
+  }
+
+  .bestill-side .steg {
+    margin-bottom: 0;
+    padding-bottom: 24px;
+  }
+
+  /* Siste steget i venstrespalta skal ikkje ha skiljelinje under seg —
+     det er ikkje lenger siste element på sida. */
+  .bestill-hovud .steg:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+    margin-bottom: 0;
+  }
 }
 
 /* ── Intro ────────────────────────────────────────────────────── */
@@ -150,7 +228,7 @@
   padding: 10px 13px;
   border: 2px solid var(--color-border);
   border-radius: 9px;
-  font-family: inherit;
+  font-family: var(--font-ui);
   font-size: 1rem;
   color: inherit;
   background: var(--color-bg);
@@ -221,7 +299,7 @@
   border: 2px solid var(--color-border);
   border-radius: 11px;
   cursor: pointer;
-  font-family: inherit;
+  font-family: var(--font-ui);
   color: inherit;
   text-align: center;
   transition: border-color 0.12s, background 0.12s;
@@ -270,7 +348,7 @@
   background: var(--color-bg);
   border: 2px solid var(--color-border);
   border-radius: 999px;
-  font-family: inherit;
+  font-family: var(--font-ui);
   font-size: 0.88rem;
   color: var(--color-text-muted);
   cursor: pointer;
@@ -320,7 +398,7 @@
   background: none;
   border: 2px dashed var(--color-border);
   border-radius: 12px;
-  font-family: inherit;
+  font-family: var(--font-ui);
   font-size: 0.95rem;
   font-weight: 600;
   color: var(--color-primary-dark);
@@ -350,7 +428,7 @@
   background: #fff;
   border: 2px solid var(--color-border);
   border-radius: 999px;
-  font-family: inherit;
+  font-family: var(--font-ui);
   font-size: 0.95rem;
   font-weight: 600;
   color: inherit;
@@ -442,7 +520,7 @@
   border: 0;
   background: var(--color-primary);
   color: #fff;
-  font-family: inherit;
+  font-family: var(--font-ui);
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;

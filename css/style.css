@@ -7,8 +7,15 @@
   --color-primary-dark: #971722;
   --color-accent: #6b5a37;
   --color-border: #e6dccb;
+  /* Serif er no brødteksten. Han gjev kroa eit varmare, meir etablert
+     preg enn systemfonten, og han er den same som overskriftene — altså
+     éi stemme i staden for to.
+     Sans er framleis med, men som grensesnittfont: etikettar, knappar,
+     tal, skjemafelt og liten tekst. Serif for å lese, sans for å
+     bruke. Utan det skiljet ville alt flyte saman. */
   --font-heading: Georgia, 'Times New Roman', serif;
-  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-body: Georgia, 'Times New Roman', serif;
+  --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --max-width: 1080px;
 }
 
@@ -739,6 +746,35 @@ section.alt {
     display: block;
     text-align: center;
   }
+}
+
+/* ── Grensesnittfont ──────────────────────────────────────────────
+   Serif er brødteksten; sans er for det ein brukar i staden for å
+   lese. Navigasjon, knappar, etikettar, tal og liten tekst. Samla her
+   i staden for spreidd utover, så systemet er råd å sjå. */
+.main-nav,
+.nav-toggle,
+.lang-switch,
+.btn,
+.call-bar,
+.menu-item-prices,
+.menu-price-legend,
+.kh-stikk,
+.kh-punkt,
+.footer-bottom,
+.footer-grid h2,
+.info-card h3,
+.social-links,
+input,
+button,
+select,
+textarea {
+  font-family: var(--font-ui);
+}
+
+/* Menyen: namnet på retten les ein, prisen les ein av. */
+.menu-item-desc {
+  font-family: var(--font-ui);
 }
 
 .social-links {
