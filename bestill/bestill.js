@@ -15,13 +15,17 @@ var OPPSETT = {
   grunnpris: 239,     // minste storleik
   oppgradering: 60,   // lagt på per steg opp
 
-  // Svara er sjølve lydane, så spørsmålet «Kva lyd lagar magen?» blir
-  // bokstavleg. Stigninga knurr → rumling → buldring går oppover heile
-  // vegen, slik at det største også høyrest størst ut.
+  // To namn på kvar storleik, med vilje:
+  //   namn        — lyden. Står på valkorta, der jobben er å selje.
+  //                 Spørsmålet «Kva lyd lagar magen?» blir bokstavleg,
+  //                 og knurr → rumling → buldring stig heile vegen.
+  //   produktnamn — det formelle. Står i oppsummeringa, som er ei
+  //                 kvittering og ikkje ein salsplakat. Her skal kunden
+  //                 kjenne att kva han faktisk har kjøpt.
   storleikar: [
-    { id: 'enkel',   gram: 120, namn: 'Knurr' },
-    { id: 'dobbel',  gram: 240, namn: 'Rumling' },
-    { id: 'trippel', gram: 360, namn: 'Buldring' }
+    { id: 'enkel',   gram: 120, namn: 'Knurr',    produktnamn: 'Osterøymeny 120' },
+    { id: 'dobbel',  gram: 240, namn: 'Rumling',  produktnamn: 'Osterøymeny 240' },
+    { id: 'trippel', gram: 360, namn: 'Buldring', produktnamn: 'Osterøymeny 360' }
   ],
 
   // Kostar ekstra. På frå start, kunden hukar dei bort.
@@ -375,7 +379,9 @@ function teiknOppsummering() {
     rad.className = 'sum-rad';
     rad.innerHTML =
       '<div><strong>' + escapeHtml(visingsnamn(l, i)) + '</strong>' +
-      '<span class="sum-detalj">' + s.namn + ', ' + s.gram + ' g' +
+      // Produktnamnet, ikkje lyden. Gramtalet ligg alt i namnet, så det
+      // skal ikkje gjentakast.
+      '<span class="sum-detalj">' + s.produktnamn +
       (detaljar.length ? ' · ' + escapeHtml(detaljar.join(', ')) : '') + '</span></div>' +
       '<span class="sum-pris">' + linjePris(l) + ',-</span>';
     liste.appendChild(rad);
