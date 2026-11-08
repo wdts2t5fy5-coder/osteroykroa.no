@@ -2,7 +2,8 @@
  *
  * Premisset: ei ordre er ikkje motteken før nokon her har trykt «Godta».
  * Betalinga gjekk gjennom hjå kunden, men maten blir ikkje til av det.
- * Difor pip skjermen, og difor eskalerer han om ingen svarar.
+ * Difor ringjer skjermen, og difor reiser alarmen seg att etter eitt
+ * minutt om ingen har teke stilling.
  *
  * Skjermen snakkar berre med Ordrekjelde, aldri med tenaren direkte.
  */
@@ -10,7 +11,10 @@
 
 var OPPSETT = {
   lagTidMinutt: 12,       // når skjermen seier LAG NO
-  eskalerSekund: 180,     // uakseptert så lenge → kraftigare varsel
+  // Eitt minutt. Vurderinga «kan me lage dette til den tida?» tek
+  // sekund, ikkje minutt — og kunden har alt betalt, så kvart minutt
+  // som går utan svar er eit minutt nærare ei henting som ikkje held.
+  eskalerSekund: 60,      // ugodteken så lenge → alarmen reiser seg att
   ringKvartSekund: 6,     // kor ofte det ringjer medan noko er ukvittert
   telefonRoy: '+4756193434'
 };
