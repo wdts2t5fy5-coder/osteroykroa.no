@@ -33,6 +33,7 @@ var OPPSETT = {
   // Kostar ingenting, men er AV frå start — dette er noko kunden legg
   // til, ikkje noko han tek bort. Mange spør om det på telefonen, så
   // det ville blitt sakna om det berre fanst munnleg.
+  // Anten–eller: kebabsaus og bearnaise saman er ikkje ein rett me sel.
   sausar: [
     { id: 'kebabsaus', namn: 'Kebabsaus' },
     { id: 'bearnaise', namn: 'Bearnaise' }
@@ -174,8 +175,9 @@ function byggLinje(l, i) {
   /* — ekstra som kostar — */
   kort.appendChild(bolk('Vil du ha noko ekstra?', chipRad(OPPSETT.ekstra, l.ekstra, l, true)));
 
-  /* — saus, gratis, av frå start — */
-  kort.appendChild(bolk('Litt saus attåt?', chipRad(OPPSETT.sausar, l.sausar, l, false)));
+  /* — saus, gratis, av frå start, anten–eller — */
+  kort.appendChild(bolk('Litt saus attåt? Vel éin',
+    chipRad(OPPSETT.sausar, l.sausar, l, false, true)));
 
   /* — tilbehøyr som følgjer med — */
   kort.appendChild(bolk('På burgeren — hak bort det du ikkje vil ha',
@@ -201,7 +203,10 @@ function bolk(tittel, innhald) {
   return d;
 }
 
-function chipRad(liste, tilstand, linje, visPris) {
+/* `eksklusiv` gjer gruppa til eit anten–eller: å slå på éin slår av dei
+   andre. Ingen saus er framleis lov — ein trykkjer berre på den valde
+   ein gong til. */
+function chipRad(liste, tilstand, linje, visPris, eksklusiv) {
   var rad = document.createElement('div');
   rad.className = 'chip-rad';
 
@@ -215,7 +220,11 @@ function chipRad(liste, tilstand, linje, visPris) {
       '<span class="chip-hake" aria-hidden="true">' + (paa ? '✓' : '+') + '</span>' +
       x.namn + (visPris ? ' <span class="chip-pris">+' + x.pris + '</span>' : '');
     c.addEventListener('click', function () {
-      tilstand[x.id] = !tilstand[x.id];
+      var nyVerdi = !tilstand[x.id];
+      if (eksklusiv && nyVerdi) {
+        liste.forEach(function (y) { tilstand[y.id] = false; });
+      }
+      tilstand[x.id] = nyVerdi;
       teiknAlt();
     });
     rad.appendChild(c);
