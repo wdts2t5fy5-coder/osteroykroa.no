@@ -11,7 +11,7 @@
 var OPPSETT = {
   lagTidMinutt: 12,       // når skjermen seier LAG NO
   eskalerSekund: 180,     // uakseptert så lenge → kraftigare varsel
-  pipKvartSekund: 20,     // kor ofte det pip medan noko ventar
+  ringKvartSekund: 6,     // kor ofte det ringjer medan noko er ukvittert
   telefonRoy: '+4756193434'
 };
 
@@ -31,39 +31,50 @@ var Lyd = (function () {
       var AC = window.AudioContext || window.webkitAudioContext;
       if (!ctx) ctx = new AC();
       if (ctx.state === 'suspended') ctx.resume();
-      pip(1);
+      ring();
       return true;
     } catch (e) {
       return false;
     }
   }
 
-  function tone(start, frekvens, lengd) {
+  /* Sinus, ikkje firkant. Firkantbølgja er full av overtonar og blir
+     skarp — det er difor billege alarmar skjer i øyra. Sinus med mjuk
+     start og lang utklang høyrest ut som ei klokke.
+
+     Lydstyrken er med vilje låg. Dette heng i eit lokale der det sit
+     gjester; han skal nå fram i grillen, ikkje dominere rommet. */
+  function tone(start, frekvens, lengd, styrke) {
     var osc = ctx.createOscillator();
     var gain = ctx.createGain();
-    osc.type = 'square';
+    osc.type = 'sine';
     osc.frequency.value = frekvens;
     gain.gain.setValueAtTime(0.0001, start);
-    gain.gain.exponentialRampToValueAtTime(0.22, start + 0.015);
-    gain.gain.exponentialRampToValueAtTime(0.0001, start + lengd);
+    gain.gain.exponentialRampToValueAtTime(styrke, start + 0.03);   // mjuk start
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + lengd);  // lang utklang
     osc.connect(gain);
     gain.connect(ctx.destination);
     osc.start(start);
-    osc.stop(start + lengd + 0.02);
+    osc.stop(start + lengd + 0.05);
   }
 
-  function pip(gonger) {
+  /* Ein E-durtreklang oppover. Dur, fordi ei ny bestilling er ei god
+     nyheit — ein skal ikkje få vondt i magen av å høyre henne. */
+  var KLANG = [659.25, 830.61, 987.77];   // E5, G#5, B5
+
+  function ring() {
     if (!ctx || ctx.state !== 'running') return;
     var t = ctx.currentTime;
-    for (var i = 0; i < gonger; i++) {
-      tone(t + i * 0.26, 880, 0.14);
-      tone(t + i * 0.26 + 0.13, 1320, 0.13);
-    }
+    KLANG.forEach(function (f, i) {
+      tone(t + i * 0.17, f, 1.5, 0.11);
+    });
+    // Oktaven på toppen, svakt, gjev klokkepreget
+    tone(t + 0.34, 1318.5, 1.9, 0.045);
   }
 
   return {
     slaaPaa: slaaPaa,
-    pip: pip,
+    ring: ring,
     erPaa: function () { return !!ctx && ctx.state === 'running'; }
   };
 })();
@@ -119,7 +130,20 @@ function el(tag, klasse, tekst) {
    Oppteikning
    ────────────────────────────────────────────────────────────────── */
 var ordrar = [];
-var stengdeLuker = [];
+
+/* Alle luker som ikkje er ledige: dei som alt har ei ordre, pluss dei
+ * kjøkenet har stengt.
+ *
+ * Dette må reknast ut frå ordrane, ikkje berre frå stengingslista. Elles
+ * reknar «Steng neste luke» 13:00 som ledig sjølv om det ligg ei ordre
+ * der, og tilbyr å stengje ei luke som uansett er oppteken.
+ */
+function opptekneLuker() {
+  var frakOrdrar = ordrar
+    .filter(function (o) { return o.status !== 'avvist'; })
+    .map(function (o) { return o.hentetid; });
+  return frakOrdrar.concat(Ordrekjelde.hentStengde());
+}
 
 function sorterPaaTid(a, b) {
   return tidTilMinutt(a.hentetid) - tidTilMinutt(b.hentetid);
@@ -265,6 +289,13 @@ function oppdaterStatuslinje() {
   document.getElementById('tal-paagaar').textContent = paagaar;
   document.getElementById('body').classList.toggle('har-nye', nye > 0);
 
+  // Ei stenging utan synleg spor er ikkje til å stole på — då veit ikkje
+  // neste vakt kva som er gjort.
+  var stengde = Ordrekjelde.hentStengde();
+  var stengdFelt = document.getElementById('stengde');
+  stengdFelt.hidden = !stengde.length;
+  stengdFelt.textContent = 'Stengd: ' + stengde.join(', ');
+
   var lyd = document.getElementById('lydstatus');
   lyd.textContent = Lyd.erPaa() ? 'Lyd på' : 'Lyd AV — trykk her';
   lyd.classList.toggle('av', !Lyd.erPaa());
@@ -285,19 +316,52 @@ function oppdaterKlokke() {
    Pip så lenge noko ventar på å bli godteke. Det sluttar av seg sjølv
    når nokon trykkjer Godta — det er heile poenget.
    ────────────────────────────────────────────────────────────────── */
-var sistPip = 0;
+/* Ordrar nokon har kvittert for ved å trykkje på skjermen.
+ *
+ * Dette er ikkje det same som å godta. Trykket seier berre «eg har sett
+ * henne», og det er med vilje: å krevje eit val i same rørsla ville
+ * gjort at folk trykte Godta for å få vekk alarmen.
+ *
+ * Lista ligg i minnet, ikkje i lagringa. Blir skjermen lasta på nytt,
+ * skal du bli varsla igjen — ein ulest ordre må ikkje kunne gøyme seg
+ * bak ein omstart.
+ */
+var sett = {};
+var sistRing = 0;
+
+function usetteOrdrar() {
+  var no = Date.now();
+  return ordrar.filter(function (o) {
+    if (o.status !== 'ny') return false;
+    if (!sett[o.id]) return true;
+    // Kvittert, men framleis ikkje godteken etter eskaleringstida:
+    // då reiser alarmen seg att. Ein ordre som berre blir sett på,
+    // blir aldri til mat.
+    return (no - o.motteke) / 1000 > OPPSETT.eskalerSekund &&
+           (no - sett[o.id]) / 1000 > OPPSETT.eskalerSekund;
+  });
+}
+
 function sjekkVarsel() {
-  var nye = ordrar.filter(function (o) { return o.status === 'ny'; });
-  if (!nye.length) { sistPip = 0; return; }
+  var usette = usetteOrdrar();
+  var alarm = document.getElementById('alarm');
+  alarm.hidden = !usette.length;
+
+  if (!usette.length) { sistRing = 0; return; }
 
   var no = Date.now();
-  if (no - sistPip < OPPSETT.pipKvartSekund * 1000) return;
-  sistPip = no;
+  if (no - sistRing < OPPSETT.ringKvartSekund * 1000) return;
+  sistRing = no;
+  Lyd.ring();
+}
 
-  var eskalert = nye.some(function (o) {
-    return (no - o.motteke) / 1000 > OPPSETT.eskalerSekund;
+function kvitter() {
+  var no = Date.now();
+  ordrar.forEach(function (o) {
+    if (o.status === 'ny') sett[o.id] = no;
   });
-  Lyd.pip(eskalert ? 5 : 2);
+  document.getElementById('alarm').hidden = true;
+  sistRing = 0;
 }
 
 /* ──────────────────────────────────────────────────────────────────
@@ -310,19 +374,32 @@ document.addEventListener('DOMContentLoaded', function () {
     sjekkVarsel();
   });
 
-  document.getElementById('lydstatus').addEventListener('click', function () {
+  document.getElementById('lydstatus').addEventListener('click', function (e) {
+    e.stopPropagation();
     Lyd.slaaPaa();
     oppdaterStatuslinje();
   });
 
+  // Trykk kvar som helst på alarmen kvitterer. Lyden blir slått på i
+  // same rørsla — det er ofte her nettbrettet får sitt første trykk
+  // etter ein omstart, og då er lyden elles framleis blokkert.
+  document.getElementById('alarm').addEventListener('click', function () {
+    Lyd.slaaPaa();
+    kvitter();
+    oppdaterStatuslinje();
+  });
+
   document.getElementById('steng-luke').addEventListener('click', function () {
-    var luker = ledigeLuker({ now: new Date(), opptekne: stengdeLuker });
-    if (!luker.length) { alert('Det er ingen fleire luker i dag.'); return; }
+    var luker = ledigeLuker({ now: new Date(), opptekne: opptekneLuker() })
+      .filter(function (l) { return l.ledig; });
+    if (!luker.length) { alert('Det er ingen ledige luker igjen i dag.'); return; }
+
     var neste = luker[0].tid;
     if (confirm('Stenge ' + neste + ' for nettbestilling?\n\n' +
-                'Kundar kan då ikkje velje den tida.')) {
-      stengdeLuker.push(neste);
-      alert('Lukka ' + neste + ' er stengd.\n\n' +
+                'Det er den første tida som framleis er ledig. ' +
+                'Kundar kan då ikkje velje henting ' + neste + '.')) {
+      Ordrekjelde.steng(neste);
+      alert(neste + ' er stengd.\n\n' +
             'MERK: I denne testversjonen gjeld det berre på denne skjermen. ' +
             'Først når tenaren er på plass når det fram til bestillingssida.');
     }

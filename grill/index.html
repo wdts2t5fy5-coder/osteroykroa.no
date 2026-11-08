@@ -12,9 +12,18 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="stylesheet" href="/grill/grill.css?v=1">
+  <link rel="stylesheet" href="/grill/grill.css?v=3">
 </head>
 <body id="body">
+
+  <!-- Full skjerm når noko nytt kjem inn. Blir verande til nokon trykkjer,
+       uavhengig av om ordren er godteken — poenget er berre at nokon har
+       sett henne. -->
+  <div id="alarm" class="alarm" hidden role="alertdialog" aria-label="Ny bestilling">
+    <img class="alarm-logo" src="/images/logo.webp" width="760" height="131" alt="">
+    <p class="alarm-tittel">Ny bestilling</p>
+    <p class="alarm-under">Trykk kvar som helst</p>
+  </div>
 
   <header class="grill-topp">
     <div class="topp-venstre">
@@ -25,6 +34,7 @@
     <div class="topp-tal">
       <span class="tal tal--ny"><strong id="tal-nye">0</strong> nye</span>
       <span class="tal"><strong id="tal-paagaar">0</strong> i arbeid</span>
+      <span class="tal tal--stengd" id="stengde" hidden></span>
     </div>
 
     <div class="topp-hogre">
@@ -63,7 +73,7 @@
   </footer>
 
   <script src="/bestill/slots.js?v=1"></script>
-  <script src="/grill/ordrekjelde.js?v=1"></script>
-  <script src="/grill/grill.js?v=1"></script>
+  <script src="/grill/ordrekjelde.js?v=2"></script>
+  <script src="/grill/grill.js?v=3"></script>
 </body>
 </html>

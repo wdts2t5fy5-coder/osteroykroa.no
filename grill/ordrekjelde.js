@@ -69,9 +69,12 @@
   /** Lagar ei realistisk testordre til neste ledige luke. */
   function lagTestordre() {
     var ordrar = les();
+    // Stengde luker tel som opptekne — ei testordre skal ikkje kunne
+    // hamne i ei luke kjøkenet nettopp har stengt.
     var opptekne = ordrar
       .filter(function (o) { return o.status !== 'avvist'; })
-      .map(function (o) { return o.hentetid; });
+      .map(function (o) { return o.hentetid; })
+      .concat(Ordrekjelde.hentStengde());
 
     var luke = (typeof nesteLedige === 'function')
       ? nesteLedige({ now: new Date(), opptekne: opptekne })
@@ -142,10 +145,32 @@
       skriv(ordrar);
     },
 
+    /* Luker kjøkenet har stengt for nettbestilling. Dei må overleve at
+       sida blir lasta på nytt — ei stengd luke som kjem att av seg
+       sjølv er verre enn inga stenging. */
+    hentStengde: function () {
+      try {
+        var raa = localStorage.getItem(NOKKEL + '-stengde');
+        return raa ? JSON.parse(raa) : [];
+      } catch (e) {
+        return [];
+      }
+    },
+
+    steng: function (tid) {
+      var liste = Ordrekjelde.hentStengde();
+      if (liste.indexOf(tid) === -1) liste.push(tid);
+      try {
+        localStorage.setItem(NOKKEL + '-stengde', JSON.stringify(liste));
+      } catch (e) { /* privat modus */ }
+      varsle();
+    },
+
     /** Berre i testmodus. Den ekte kjelda får ordrar frå Vipps. */
     lagTestordre: lagTestordre,
 
     tomTestdata: function () {
+      try { localStorage.removeItem(NOKKEL + '-stengde'); } catch (e) {}
       skriv([]);
     },
 

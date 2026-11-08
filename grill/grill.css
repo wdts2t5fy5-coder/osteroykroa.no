@@ -353,3 +353,94 @@ main { padding: 18px; }
   .ordreliste { grid-template-columns: 1fr; }
   main { padding: 14px; }
 }
+
+/* Stengde luker. Dempa gult: det er ikkje ein feil, men noko kjøkenet
+   har valt og bør hugse at dei har valt. */
+.tal--stengd {
+  color: var(--f-lag);
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+
+/* ── Alarm ────────────────────────────────────────────────────────
+   Heile skjermen når ei ny ordre kjem inn. Logoen og botnen byter
+   mellom kvitt og raudt.
+
+   Takta er sett til 1,1 sekund med mjuke overgangar, ikkje raske blink.
+   Det er to grunnar: raske blink under 3 Hz er ubehagelege og kan vere
+   eit helseproblem, og dette heng på ein vegg i eit lokale der det sit
+   gjester. Han skal merkast, ikkje skremme.
+
+   Logoen er raud i utgangspunktet. Mot raud botn blir han gjord kvit
+   med eit filter, så me slepp å halde to filer i synk. */
+.alarm {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  padding: 24px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  animation: alarm-botn 1.1s ease-in-out infinite;
+}
+
+.alarm-logo {
+  width: min(78vw, 820px);
+  height: auto;
+  animation: alarm-logo 1.1s ease-in-out infinite;
+}
+
+.alarm-tittel,
+.alarm-under {
+  margin: 0;
+  text-align: center;
+  font-weight: 800;
+  animation: alarm-tekst 1.1s ease-in-out infinite;
+}
+
+.alarm-tittel {
+  font-size: clamp(1.6rem, 4.5vw, 3rem);
+  letter-spacing: 0.02em;
+}
+
+.alarm-under {
+  font-size: clamp(0.95rem, 2vw, 1.3rem);
+  font-weight: 600;
+  opacity: 0.75;
+}
+
+@keyframes alarm-botn {
+  0%, 100% { background: #ffffff; }
+  50%      { background: var(--f-ny); }
+}
+
+@keyframes alarm-logo {
+  /* brightness(0) invert(1) gjer kva som helst til reint kvitt */
+  0%, 100% { filter: none; }
+  50%      { filter: brightness(0) invert(1); }
+}
+
+@keyframes alarm-tekst {
+  0%, 100% { color: var(--f-ny); }
+  50%      { color: #ffffff; }
+}
+
+/* For dei som har slått av rørsle: alarmen skal framleis stoppe deg,
+   men ho skal stå stille. */
+@media (prefers-reduced-motion: reduce) {
+  .alarm,
+  .alarm-logo,
+  .alarm-tittel,
+  .alarm-under {
+    animation: none;
+  }
+  .alarm { background: var(--f-ny); }
+  .alarm-logo { filter: brightness(0) invert(1); }
+  .alarm-tittel,
+  .alarm-under { color: #fff; }
+}
