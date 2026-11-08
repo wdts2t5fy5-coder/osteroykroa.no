@@ -8,7 +8,7 @@
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="/css/style.css?v=22">
-  <link rel="stylesheet" href="/bestill/bestill.css?v=1">
+  <link rel="stylesheet" href="/bestill/bestill.css?v=2">
 </head>
 <body>
 
@@ -36,55 +36,59 @@
 
         <h1>Bestill Osterøyburger</h1>
         <p class="bestill-ingress">
-          Vel storleik og når du vil hente. Me lagar han ferdig til tida du vel,
-          så du slepp å vente.
+          Set saman burgeren slik du vil ha han, og vel når du vil hente.
+          Me merkjer kvar burger med namn, så de slepp å lure på kven som
+          fekk kva.
         </p>
 
         <!-- 1 ───────────────────────────────────────────────── -->
         <section class="steg" aria-labelledby="steg-1">
-          <h2 id="steg-1"><span class="steg-nr">1</span> Kor sulten er du?</h2>
-          <div id="storleikar" class="val-kort-rad"></div>
-          <p class="steg-hjelp">Alle prisar er inkl. mva. og gjeld henting.</p>
+          <h2 id="steg-1"><span class="steg-nr">1</span> Burgerane dine</h2>
+
+          <div id="linjer"></div>
+
+          <button type="button" id="legg-til" class="legg-til">
+            + Legg til ein burger til
+          </button>
+
+          <div id="stor-ordre" class="merknad" hidden>
+            <strong>Skal du ha meir enn 10?</strong>
+            Det hjelper me gjerne med — me treng berre litt meir tid på å få
+            det klart. Ring oss på <a class="tlf" href="tel:+4756193434">56 19 34 34</a>,
+            så finn me ei løysing saman.
+          </div>
+
+          <div class="merknad merknad-allergen">
+            <strong>Allergi eller anna du må ta omsyn til?</strong>
+            Ring oss på <a class="tlf" href="tel:+4756193434">56 19 34 34</a>,
+            så tilpassar me burgeren til deg. Me hjelper gjerne.
+            <a href="/allergener">Sjå allergenoversikta</a>.
+          </div>
         </section>
 
         <!-- 2 ───────────────────────────────────────────────── -->
         <section class="steg" aria-labelledby="steg-2">
-          <h2 id="steg-2"><span class="steg-nr">2</span> Kor mange?</h2>
-          <div class="tal-veljar">
-            <button type="button" id="tal-ned" aria-label="Færre">&minus;</button>
-            <span id="tal-verdi" aria-live="polite">1</span>
-            <button type="button" id="tal-opp" aria-label="Fleire">+</button>
-          </div>
-
-          <div id="stor-ordre" class="merknad" hidden>
-            <strong>Skal du ha meir enn 10?</strong>
-            Det hjelper me gjerne med — me treng berre litt meir tid på å få det klart.
-            Ring oss på <a id="telefon-stor-ordre" href="tel:+4756193434">56 19 34 34</a>,
-            så finn me ei løysing saman.
-          </div>
-        </section>
-
-        <!-- 3 ───────────────────────────────────────────────── -->
-        <section class="steg" aria-labelledby="steg-3">
-          <h2 id="steg-3"><span class="steg-nr">3</span> Når vil du hente?</h2>
+          <h2 id="steg-2"><span class="steg-nr">2</span> Når vil du hente?</h2>
           <div id="luker" class="luke-rad"></div>
           <p class="steg-hjelp">
-            Me treng minst eit kvarter på å lage maten, så den næraste tida kan
-            vere litt fram i tid. Ei tid som alt er teken, er borte.
+            Me treng minst eit kvarter på å lage maten, så den næraste tida
+            kan vere litt fram i tid. Ei tid som alt er teken, er borte.
           </p>
         </section>
 
-        <!-- 4 ───────────────────────────────────────────────── -->
-        <section class="steg oppsummering" aria-labelledby="steg-4">
-          <h2 id="steg-4"><span class="steg-nr">4</span> Oppsummering</h2>
-          <dl class="sum">
-            <dt>Bestilling</dt><dd id="sum-linje">Ingen burger vald enno</dd>
-            <dt>Hentetid</dt><dd id="sum-tid">Inga hentetid vald</dd>
-            <dt>Å betale</dt><dd id="sum-total" class="sum-total">–</dd>
-          </dl>
+        <!-- 3 ───────────────────────────────────────────────── -->
+        <section class="steg oppsummering" aria-labelledby="steg-3">
+          <h2 id="steg-3"><span class="steg-nr">3</span> Oppsummering</h2>
+
+          <div id="sum-liste" class="sum-liste"></div>
+
+          <div class="sum-botn">
+            <span id="sum-tid" class="sum-tid">Inga hentetid vald</span>
+            <span id="sum-total" class="sum-total">0,-</span>
+          </div>
 
           <button type="button" id="betal" class="btn btn-betal" disabled>
-            Vel burger og hentetid
+            Vel ei hentetid
           </button>
 
           <div id="vipps-mangler" class="merknad merknad-aatvaring" hidden>
@@ -94,9 +98,8 @@
           </div>
 
           <p class="steg-hjelp">
-            Du hentar i Lonevågen 2. Me ringjer deg om noko skulle skje med
-            bestillinga.
-            <a href="/allergener">Sjå allergenoversikta</a>.
+            Alle prisar er inkl. mva. og gjeld henting i Lonevågen 2.
+            Me ringjer deg om noko skulle skje med bestillinga.
           </p>
         </section>
 
@@ -115,6 +118,6 @@
 
   <script src="/js/main.js?v=4"></script>
   <script src="/bestill/slots.js?v=1"></script>
-  <script src="/bestill/bestill.js?v=1"></script>
+  <script src="/bestill/bestill.js?v=2"></script>
 </body>
 </html>

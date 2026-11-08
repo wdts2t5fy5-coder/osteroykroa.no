@@ -1,77 +1,220 @@
 /* Bestillingsflyt for Osterøyburger — pilot.
  *
+ * Kvar burger er ei eiga linje med eige namn, eigen storleik og eigne
+ * val. Det er difor modellen er ei liste og ikkje eit tal: eit par som
+ * bestiller saman skal kunne gje Theodor og Semoa kvar sin burger med
+ * kvar sine ingrediensar, og få dei merkte med namn i luka.
+ *
  * Ingen betaling er kopla på enno; Vipps-avtalen er i bestilling.
- * Knappen til slutt viser kva som vil skje, men sender ingenting.
  */
 
 /* ──────────────────────────────────────────────────────────────────
    Innstillingar. Alt Roy skal kunne endre ligg her, og berre her.
    ────────────────────────────────────────────────────────────────── */
 var OPPSETT = {
-  // PRISANE ER PLASSHALDARAR og må stadfestast av Roy.
-  // Til samanlikning, «ta med»-prisar frå menyen i dag:
-  //   Osterøy burger (éi storleik) 239
-  //   Jafs Burger 200 g 255 · 320 g 309 · 500 g 439
+  grunnpris: 239,     // minste storleik
+  oppgradering: 60,   // lagt på per steg opp
+
+  // Svara er sjølve lydane, så spørsmålet «Kva lyd lagar magen?» blir
+  // bokstavleg. Stigninga knurr → rumling → buldring går oppover heile
+  // vegen, slik at det største også høyrest størst ut.
   storleikar: [
-    { id: 'enkel',   gram: 120, namn: 'Litt sulten?',  pris: 239, plasshaldar: true },
-    { id: 'dobbel',  gram: 240, namn: 'Sulten.',       pris: 299, plasshaldar: true },
-    { id: 'trippel', gram: 360, namn: 'Kjempe-sulten!', pris: 359, plasshaldar: true }
+    { id: 'enkel',   gram: 120, namn: 'Knurr' },
+    { id: 'dobbel',  gram: 240, namn: 'Rumling' },
+    { id: 'trippel', gram: 360, namn: 'Buldring' }
   ],
 
-  // Alternativt namnesett, om Roy heller vil ha dette:
-  //   Lunsj · Middag · Festmåltid
+  // Kostar ekstra. På frå start, kunden hukar dei bort.
+  ekstra: [
+    { id: 'ost',   namn: 'Ost',   pris: 20 },
+    { id: 'bacon', namn: 'Bacon', pris: 20 }
+  ],
 
-  maksPerOrdre: 10,
+  // Følgjer med. Ingen prisendring om dei blir tekne bort.
+  // Skrivemåten følgjer menyen («løk», ikkje «lauk»), slik at kunden
+  // kjenner att det same ordet båe stader.
+  tilbehoer: [
+    { id: 'salat',      namn: 'Salat' },
+    { id: 'mais',       namn: 'Mais' },
+    { id: 'dressing',   namn: 'Dressing' },
+    { id: 'lok',        namn: 'Løk' },
+    { id: 'sylteagurk', namn: 'Sylteagurk' }
+  ],
+
+  maksBurgarar: 10,
   telefon: '56 19 34 34',
   telefonLenke: '+4756193434'
 };
 
+function prisFor(storleikId) {
+  for (var i = 0; i < OPPSETT.storleikar.length; i++) {
+    if (OPPSETT.storleikar[i].id === storleikId) {
+      return OPPSETT.grunnpris + i * OPPSETT.oppgradering;
+    }
+  }
+  return OPPSETT.grunnpris;
+}
+
 /* ──────────────────────────────────────────────────────────────────
    Tilstand
    ────────────────────────────────────────────────────────────────── */
-var valt = {
-  storleik: null,
-  tal: 1,
-  luke: null
-};
+var nesteId = 1;
 
-// Opptekne luker. Kjem frå tenaren når han finst; tom i piloten.
-var opptekneLuker = [];
+function nyLinje() {
+  var l = { id: nesteId++, namn: '', storleik: 'enkel', ekstra: {}, tilbehoer: {} };
+  OPPSETT.ekstra.forEach(function (e) { l.ekstra[e.id] = true; });        // på frå start
+  OPPSETT.tilbehoer.forEach(function (t) { l.tilbehoer[t.id] = true; });  // på frå start
+  return l;
+}
+
+var ordre = { linjer: [nyLinje()], luke: null };
+var opptekneLuker = []; // kjem frå tenaren når han finst
+
+function linjePris(l) {
+  var sum = prisFor(l.storleik);
+  OPPSETT.ekstra.forEach(function (e) { if (l.ekstra[e.id]) sum += e.pris; });
+  return sum;
+}
+
+function totalPris() {
+  return ordre.linjer.reduce(function (s, l) { return s + linjePris(l); }, 0);
+}
+
+function visingsnamn(l, i) {
+  return l.namn.trim() || ('Burger ' + (i + 1));
+}
 
 /* ──────────────────────────────────────────────────────────────────
-   Oppteikning
+   Oppteikning — burgerlinjer
    ────────────────────────────────────────────────────────────────── */
-function teiknStorleikar() {
-  var rot = document.getElementById('storleikar');
+function teiknLinjer() {
+  var rot = document.getElementById('linjer');
+
+  // Fokus skal ikkje hoppe medan ein skriv namn, så me teiknar berre
+  // heile lista på nytt når talet på linjer endrar seg.
   rot.innerHTML = '';
 
-  OPPSETT.storleikar.forEach(function (s) {
-    var kort = document.createElement('button');
-    kort.type = 'button';
-    kort.className = 'val-kort' + (valt.storleik === s.id ? ' er-valt' : '');
-    kort.setAttribute('aria-pressed', valt.storleik === s.id ? 'true' : 'false');
-    kort.innerHTML =
-      '<span class="val-kort-namn">' + s.namn + '</span>' +
-      '<span class="val-kort-gram">' + s.gram + ' g</span>' +
-      '<span class="val-kort-pris">' + s.pris + ',-</span>';
-    kort.addEventListener('click', function () {
-      valt.storleik = s.id;
+  ordre.linjer.forEach(function (l, i) {
+    rot.appendChild(byggLinje(l, i));
+  });
+
+  var leggTil = document.getElementById('legg-til');
+  var full = ordre.linjer.length >= OPPSETT.maksBurgarar;
+  leggTil.disabled = full;
+  document.getElementById('stor-ordre').hidden = !full;
+}
+
+function byggLinje(l, i) {
+  var kort = document.createElement('div');
+  kort.className = 'burgerlinje';
+
+  /* — topp: namn og fjerning — */
+  var topp = document.createElement('div');
+  topp.className = 'burgerlinje-topp';
+
+  var merkelapp = document.createElement('label');
+  merkelapp.className = 'namnefelt';
+  merkelapp.innerHTML = '<span>Kven er burgeren til?</span>';
+
+  var felt = document.createElement('input');
+  felt.type = 'text';
+  felt.value = l.namn;
+  felt.placeholder = 't.d. Theodor';
+  felt.maxLength = 24;
+  felt.autocomplete = 'off';
+  felt.addEventListener('input', function () {
+    l.namn = felt.value;
+    teiknOppsummering(); // berre summen, slik at skrivinga ikkje blir avbroten
+  });
+  merkelapp.appendChild(felt);
+  topp.appendChild(merkelapp);
+
+  if (ordre.linjer.length > 1) {
+    var fjern = document.createElement('button');
+    fjern.type = 'button';
+    fjern.className = 'fjern-linje';
+    fjern.setAttribute('aria-label', 'Fjern ' + visingsnamn(l, i));
+    fjern.innerHTML = '&times;';
+    fjern.addEventListener('click', function () {
+      ordre.linjer = ordre.linjer.filter(function (x) { return x.id !== l.id; });
       teiknAlt();
     });
-    rot.appendChild(kort);
+    topp.appendChild(fjern);
+  }
+  kort.appendChild(topp);
+
+  /* — storleik — */
+  kort.appendChild(bolk('Kva lyd lagar magen?', (function () {
+    var rad = document.createElement('div');
+    rad.className = 'storleik-rad';
+    OPPSETT.storleikar.forEach(function (s) {
+      var k = document.createElement('button');
+      k.type = 'button';
+      k.className = 'storleik' + (l.storleik === s.id ? ' er-valt' : '');
+      k.setAttribute('aria-pressed', l.storleik === s.id ? 'true' : 'false');
+      k.innerHTML =
+        '<span class="storleik-namn">' + s.namn + '</span>' +
+        '<span class="storleik-gram">' + s.gram + ' g</span>' +
+        '<span class="storleik-pris">' + prisFor(s.id) + ',-</span>';
+      k.addEventListener('click', function () { l.storleik = s.id; teiknAlt(); });
+      rad.appendChild(k);
+    });
+    return rad;
+  })()));
+
+  /* — ekstra som kostar — */
+  kort.appendChild(bolk('Vil du ha noko ekstra?', chipRad(OPPSETT.ekstra, l.ekstra, l, true)));
+
+  /* — tilbehøyr som følgjer med — */
+  kort.appendChild(bolk('På burgeren — hak bort det du ikkje vil ha',
+    chipRad(OPPSETT.tilbehoer, l.tilbehoer, l, false)));
+
+  /* — linjesum — */
+  var sum = document.createElement('div');
+  sum.className = 'burgerlinje-sum';
+  sum.textContent = linjePris(l) + ',-';
+  kort.appendChild(sum);
+
+  return kort;
+}
+
+function bolk(tittel, innhald) {
+  var d = document.createElement('div');
+  d.className = 'bolk';
+  var h = document.createElement('span');
+  h.className = 'bolk-tittel';
+  h.textContent = tittel;
+  d.appendChild(h);
+  d.appendChild(innhald);
+  return d;
+}
+
+function chipRad(liste, tilstand, linje, visPris) {
+  var rad = document.createElement('div');
+  rad.className = 'chip-rad';
+
+  liste.forEach(function (x) {
+    var paa = !!tilstand[x.id];
+    var c = document.createElement('button');
+    c.type = 'button';
+    c.className = 'chip' + (paa ? ' er-paa' : '');
+    c.setAttribute('aria-pressed', paa ? 'true' : 'false');
+    c.innerHTML =
+      '<span class="chip-hake" aria-hidden="true">' + (paa ? '✓' : '+') + '</span>' +
+      x.namn + (visPris ? ' <span class="chip-pris">+' + x.pris + '</span>' : '');
+    c.addEventListener('click', function () {
+      tilstand[x.id] = !tilstand[x.id];
+      teiknAlt();
+    });
+    rad.appendChild(c);
   });
+
+  return rad;
 }
 
-function teiknTal() {
-  document.getElementById('tal-verdi').textContent = valt.tal;
-  document.getElementById('tal-ned').disabled = valt.tal <= 1;
-
-  // Over grensa stoppar me ikkje kunden med ein vegg, men ber dei ringje.
-  var over = valt.tal >= OPPSETT.maksPerOrdre;
-  document.getElementById('tal-opp').disabled = over;
-  document.getElementById('stor-ordre').hidden = !over;
-}
-
+/* ──────────────────────────────────────────────────────────────────
+   Oppteikning — hentetider
+   ────────────────────────────────────────────────────────────────── */
 function teiknLuker() {
   var rot = document.getElementById('luker');
   var luker = ledigeLuker({ now: new Date(), opptekne: opptekneLuker });
@@ -86,68 +229,88 @@ function teiknLuker() {
   }
 
   luker.forEach(function (l) {
-    var knapp = document.createElement('button');
-    knapp.type = 'button';
-    knapp.className = 'luke' + (valt.luke === l.tid ? ' er-valt' : '');
-    knapp.textContent = l.tid;
-    knapp.disabled = !l.ledig;
-    if (!l.ledig) {
-      knapp.classList.add('er-teken');
-      knapp.title = 'Alt bestilt';
-    }
-    knapp.addEventListener('click', function () {
-      valt.luke = l.tid;
-      teiknAlt();
-    });
-    rot.appendChild(knapp);
+    var k = document.createElement('button');
+    k.type = 'button';
+    k.className = 'luke' + (ordre.luke === l.tid ? ' er-valt' : '');
+    k.textContent = l.tid;
+    k.disabled = !l.ledig;
+    if (!l.ledig) { k.classList.add('er-teken'); k.title = 'Alt bestilt'; }
+    k.addEventListener('click', function () { ordre.luke = l.tid; teiknAlt(); });
+    rot.appendChild(k);
   });
 }
 
+/* ──────────────────────────────────────────────────────────────────
+   Oppteikning — oppsummering
+   ────────────────────────────────────────────────────────────────── */
 function teiknOppsummering() {
-  var s = finnStorleik();
-  var klar = s && valt.luke;
-  var sum = s ? s.pris * valt.tal : 0;
+  var liste = document.getElementById('sum-liste');
+  liste.innerHTML = '';
 
-  document.getElementById('sum-linje').textContent = s
-    ? valt.tal + ' × ' + s.namn + ' (' + s.gram + ' g)'
-    : 'Ingen burger vald enno';
-  document.getElementById('sum-tid').textContent = valt.luke
-    ? 'Henting kl. ' + valt.luke
-    : 'Inga hentetid vald';
-  document.getElementById('sum-total').textContent = sum ? sum + ',-' : '–';
+  ordre.linjer.forEach(function (l, i) {
+    var s = OPPSETT.storleikar.filter(function (x) { return x.id === l.storleik; })[0];
+
+    var utan = OPPSETT.tilbehoer
+      .filter(function (t) { return !l.tilbehoer[t.id]; })
+      .map(function (t) { return t.namn.toLowerCase(); });
+    var med = OPPSETT.ekstra
+      .filter(function (e) { return l.ekstra[e.id]; })
+      .map(function (e) { return e.namn.toLowerCase(); });
+
+    var detaljar = [];
+    if (med.length) detaljar.push('med ' + med.join(' og '));
+    if (utan.length) detaljar.push('utan ' + utan.join(', '));
+
+    var rad = document.createElement('div');
+    rad.className = 'sum-rad';
+    rad.innerHTML =
+      '<div><strong>' + escapeHtml(visingsnamn(l, i)) + '</strong>' +
+      '<span class="sum-detalj">' + s.namn + ', ' + s.gram + ' g' +
+      (detaljar.length ? ' · ' + escapeHtml(detaljar.join(', ')) : '') + '</span></div>' +
+      '<span class="sum-pris">' + linjePris(l) + ',-</span>';
+    liste.appendChild(rad);
+  });
+
+  document.getElementById('sum-tid').textContent =
+    ordre.luke ? 'Henting kl. ' + ordre.luke : 'Inga hentetid vald';
+  document.getElementById('sum-total').textContent = totalPris() + ',-';
 
   var knapp = document.getElementById('betal');
-  knapp.disabled = !klar;
-  knapp.textContent = klar ? 'Betal ' + sum + ',- med Vipps' : 'Vel burger og hentetid';
+  knapp.disabled = !ordre.luke;
+  knapp.textContent = ordre.luke
+    ? 'Betal ' + totalPris() + ',- med Vipps'
+    : 'Vel ei hentetid';
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
 }
 
 function teiknAlt() {
-  teiknStorleikar();
-  teiknTal();
+  teiknLinjer();
   teiknLuker();
   teiknOppsummering();
-}
-
-function finnStorleik() {
-  for (var i = 0; i < OPPSETT.storleikar.length; i++) {
-    if (OPPSETT.storleikar[i].id === valt.storleik) return OPPSETT.storleikar[i];
-  }
-  return null;
 }
 
 /* ──────────────────────────────────────────────────────────────────
    Oppstart
    ────────────────────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', function () {
-  document.getElementById('tal-ned').addEventListener('click', function () {
-    if (valt.tal > 1) { valt.tal--; teiknAlt(); }
-  });
-  document.getElementById('tal-opp').addEventListener('click', function () {
-    if (valt.tal < OPPSETT.maksPerOrdre) { valt.tal++; teiknAlt(); }
+  document.getElementById('legg-til').addEventListener('click', function () {
+    if (ordre.linjer.length < OPPSETT.maksBurgarar) {
+      ordre.linjer.push(nyLinje());
+      teiknAlt();
+      var felt = document.querySelectorAll('#linjer input[type=text]');
+      if (felt.length) felt[felt.length - 1].focus();
+    }
   });
 
-  document.getElementById('telefon-stor-ordre').textContent = OPPSETT.telefon;
-  document.getElementById('telefon-stor-ordre').href = 'tel:' + OPPSETT.telefonLenke;
+  Array.prototype.forEach.call(document.querySelectorAll('.tlf'), function (a) {
+    a.textContent = OPPSETT.telefon;
+    a.href = 'tel:' + OPPSETT.telefonLenke;
+  });
 
   document.getElementById('betal').addEventListener('click', function () {
     document.getElementById('vipps-mangler').hidden = false;
@@ -158,12 +321,12 @@ document.addEventListener('DOMContentLoaded', function () {
   // Luker forsvinn etter kvart som tida går. Utan dette kunne ein kunde
   // sitje med sida open og velje ei luke som nett blei for nær i tid.
   setInterval(function () {
-    var foer = valt.luke;
+    var foer = ordre.luke;
     teiknLuker();
     var finst = Array.prototype.some.call(
       document.querySelectorAll('#luker .luke'),
       function (k) { return k.textContent === foer; }
     );
-    if (foer && !finst) { valt.luke = null; teiknAlt(); }
+    if (foer && !finst) { ordre.luke = null; teiknAlt(); }
   }, 30000);
 });

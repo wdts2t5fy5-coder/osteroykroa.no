@@ -55,22 +55,113 @@
   margin: 16px 0 0;
 }
 
-/* ── Storleiksval ─────────────────────────────────────────────── */
-.val-kort-rad {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+/* ── Burgerlinje ──────────────────────────────────────────────── */
+.burgerlinje {
+  position: relative;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 14px;
 }
 
-.val-kort {
+.burgerlinje-topp {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.namnefelt {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.namnefelt span {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.namnefelt input {
+  width: 100%;
+  padding: 10px 13px;
+  border: 2px solid var(--color-border);
+  border-radius: 9px;
+  font-family: inherit;
+  font-size: 1rem;
+  color: inherit;
+  background: var(--color-bg);
+}
+
+.namnefelt input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background: #fff;
+}
+
+.fjern-linje {
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-bg-alt);
+  color: var(--color-text-muted);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.fjern-linje:hover {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.bolk {
+  margin-bottom: 16px;
+}
+
+.bolk-tittel {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+}
+
+.burgerlinje-sum {
+  text-align: right;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--color-primary-dark);
+  border-top: 1px solid var(--color-border);
+  padding-top: 12px;
+  margin-top: 4px;
+}
+
+/* ── Storleiksval ─────────────────────────────────────────────── */
+.storleik-rad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.storleik {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  padding: 18px 10px;
-  background: #fff;
+  gap: 2px;
+  padding: 13px 8px;
+  background: var(--color-bg);
   border: 2px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: 11px;
   cursor: pointer;
   font-family: inherit;
   color: inherit;
@@ -78,73 +169,114 @@
   transition: border-color 0.12s, background 0.12s;
 }
 
-.val-kort:hover {
+.storleik:hover {
   border-color: var(--color-primary);
 }
 
-.val-kort.er-valt {
+.storleik.er-valt {
   border-color: var(--color-primary);
   background: #fdf1f2;
 }
 
-.val-kort-namn {
+.storleik-namn {
   font-family: var(--font-heading);
-  font-size: 1rem;
+  font-size: 0.93rem;
   font-weight: 700;
   color: var(--color-primary-dark);
   line-height: 1.25;
 }
 
-.val-kort-gram {
-  font-size: 0.78rem;
+.storleik-gram {
+  font-size: 0.74rem;
   color: var(--color-text-muted);
 }
 
-.val-kort-pris {
-  margin-top: 5px;
+.storleik-pris {
+  margin-top: 3px;
   font-weight: 700;
-  font-size: 1.05rem;
+  font-size: 0.95rem;
 }
 
-/* ── Talveljar ────────────────────────────────────────────────── */
-.tal-veljar {
+/* ── Chips for ekstra og tilbehøyr ────────────────────────────── */
+.chip-rad {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.chip {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  padding: 7px 13px 7px 10px;
+  background: var(--color-bg);
   border: 2px solid var(--color-border);
   border-radius: 999px;
-  background: #fff;
-  padding: 4px;
+  font-family: inherit;
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s, color 0.12s;
 }
 
-.tal-veljar button {
-  width: 40px;
-  height: 40px;
-  border: 0;
+.chip:hover {
+  border-color: var(--color-primary);
+}
+
+.chip.er-paa {
+  background: #fdf1f2;
+  border-color: var(--color-primary);
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.chip-hake {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 17px;
+  height: 17px;
   border-radius: 50%;
-  background: var(--color-bg-alt);
-  color: var(--color-primary-dark);
-  font-size: 1.25rem;
-  font-weight: 700;
-  cursor: pointer;
+  background: var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
   line-height: 1;
 }
 
-.tal-veljar button:hover:not(:disabled) {
+.chip.er-paa .chip-hake {
   background: var(--color-primary);
   color: #fff;
 }
 
-.tal-veljar button:disabled {
-  opacity: 0.35;
-  cursor: default;
+.chip-pris {
+  color: var(--color-text-muted);
+  font-weight: 400;
+  font-size: 0.82rem;
 }
 
-#tal-verdi {
-  min-width: 46px;
-  text-align: center;
-  font-size: 1.15rem;
-  font-weight: 700;
+/* ── Legg til ─────────────────────────────────────────────────── */
+.legg-til {
+  display: block;
+  width: 100%;
+  padding: 13px;
+  background: none;
+  border: 2px dashed var(--color-border);
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-primary-dark);
+  cursor: pointer;
+}
+
+.legg-til:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  background: #fdf1f2;
+}
+
+.legg-til:disabled {
+  opacity: 0.4;
+  cursor: default;
 }
 
 /* ── Hentetider ───────────────────────────────────────────────── */
@@ -199,26 +331,46 @@
   padding: 26px 24px 24px;
 }
 
-.sum {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 8px 20px;
-  margin: 0 0 22px;
+.sum-liste {
+  margin-bottom: 4px;
 }
 
-.sum dt {
+.sum-rad {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.sum-detalj {
+  display: block;
+  font-size: 0.82rem;
   color: var(--color-text-muted);
-  font-size: 0.9rem;
+  line-height: 1.45;
 }
 
-.sum dd {
-  margin: 0;
+.sum-pris {
+  flex: 0 0 auto;
   font-weight: 600;
-  text-align: right;
+}
+
+.sum-botn {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 16px 0 20px;
+}
+
+.sum-tid {
+  font-weight: 600;
 }
 
 .sum-total {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
+  font-weight: 700;
   color: var(--color-primary-dark);
 }
 
@@ -263,21 +415,30 @@
   border-left-color: var(--color-primary);
 }
 
+.merknad-allergen {
+  background: var(--color-bg-alt);
+}
+
 /* ── Mobil ────────────────────────────────────────────────────── */
 @media (max-width: 560px) {
-  .val-kort-rad {
-    grid-template-columns: 1fr;
+  .burgerlinje {
+    padding: 16px;
   }
 
-  .val-kort {
+  .storleik-rad {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+
+  .storleik {
     flex-direction: row;
     justify-content: space-between;
     align-items: baseline;
     text-align: left;
-    padding: 14px 16px;
+    padding: 12px 14px;
   }
 
-  .val-kort-pris {
+  .storleik-pris {
     margin-top: 0;
   }
 }
