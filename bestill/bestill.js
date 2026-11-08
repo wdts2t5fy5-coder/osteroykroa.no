@@ -67,17 +67,26 @@ var OPPSETT = {
   telefonLenke: '+4756193434',
 
   // Forslag som blir «skrivne» i namnefeltet når det står tomt.
+  // Rekkjefølgja blir stokka ved kvar sidelasting, så lista ikkje blir
+  // forutsigbar for dei som bestiller ofte.
+  //
+  // Lokale former er med vilje: «Besto» og «Besten» for besteforeldra,
+  // «Tante» i bestemt form slik det blir sagt her, «Damo» og «Typen».
+  // Ordboksnynorsk ville vore framandt i ein kro på Osterøy.
+  //
   // Korte er best: eit langt forslag brukar lang tid på å skrivast og
   // slettast, og rytmen i rotasjonen blir ujamn.
   namneforslag: [
     'Meg sjølv',
-    'Ein venn',
-    'Kjærasten',
-    'Mor',
-    'Far',
+    'Ein god venn',
+    'Besto',
+    'Besten',
+    'Tante',
+    'Onkel',
+    'Typen',
+    'Damo',
     'Storebror',
-    'Veslesyster',
-    'Tanta',
+    'Lillesøster',
     'Cowboyen',
     'Ein eg er glad i',
     'Ein som fortener det'
@@ -400,9 +409,21 @@ function teiknOppsummering() {
    på nytt ved kvart klikk, og ein animasjon festa til elementet ville
    då starta på nytt heile tida.
    ────────────────────────────────────────────────────────────────── */
+function stokk(arr) {
+  var ut = arr.slice();
+  for (var i = ut.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = ut[i]; ut[i] = ut[j]; ut[j] = t;
+  }
+  return ut;
+}
+
 function startSkrivemaskin() {
-  var forslag = OPPSETT.namneforslag;
-  if (!forslag || !forslag.length) return;
+  if (!OPPSETT.namneforslag || !OPPSETT.namneforslag.length) return;
+
+  // Stokka per sidelasting. Ein fast rekkjefølgje ville blitt gjenkjenneleg
+  // for stamkundar, og då sluttar forslaga å overraske.
+  var forslag = stokk(OPPSETT.namneforslag);
 
   var roleg = window.matchMedia &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
