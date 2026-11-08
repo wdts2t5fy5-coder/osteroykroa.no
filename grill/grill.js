@@ -153,7 +153,44 @@ function sorterPaaTid(a, b) {
   return tidTilMinutt(a.hentetid) - tidTilMinutt(b.hentetid);
 }
 
+/* Kva som faktisk står på skjermen, som éin streng.
+ *
+ * Skjermen teiknar seg på nytt kvart femte sekund for at fasane skal
+ * endre seg av seg sjølv. Men å byte ut DOM-en når ingenting har endra
+ * seg er ikkje gratis: har nokon fingeren nede på ein knapp i same
+ * augeblinken, blir knappen bytt ut under fingeren og trykket går tapt.
+ * På eit nettbrett i ein travel grill er det ein ekte feil.
+ */
+function avtrykk() {
+  var no = naaMinutt();
+  return ordrar.map(function (o) {
+    return o.id + ':' + o.status + ':' + finnFase(o, tidTilMinutt(o.hentetid) - no);
+  }).join('|') + '#' + Ordrekjelde.hentStengde().join(',');
+}
+
+var sisteAvtrykk = null;
+
+/* Nedtellinga må gå vidare sjølv om korta står i ro. Me skriv difor om
+   berre teksten, utan å røre knappane. */
+function oppdaterNedtellingar() {
+  var no = naaMinutt();
+  Array.prototype.forEach.call(document.querySelectorAll('.ordre'), function (kort) {
+    var o = ordrar.filter(function (x) { return x.id === kort.dataset.id; })[0];
+    if (!o) return;
+    var felt = kort.querySelector('.ordre-nedtel');
+    if (felt) felt.textContent = minuttTekst(tidTilMinutt(o.hentetid) - no);
+  });
+}
+
 function teikn() {
+  var no = avtrykk();
+  if (no === sisteAvtrykk) {
+    oppdaterNedtellingar();
+    oppdaterStatuslinje();
+    return;
+  }
+  sisteAvtrykk = no;
+
   var nye = ordrar.filter(function (o) { return o.status === 'ny'; }).sort(sorterPaaTid);
   var aktive = ordrar.filter(function (o) {
     return o.status === 'godteken' || o.status === 'klar';
@@ -184,6 +221,7 @@ function byggOrdre(o) {
   var fase = finnFase(o, att);
 
   var kort = el('article', 'ordre ordre--' + fase);
+  kort.dataset.id = o.id;   // så nedtellinga kan oppdaterast utan ny oppteikning
 
   /* — topplinje — */
   var topp = el('div', 'ordre-topp');

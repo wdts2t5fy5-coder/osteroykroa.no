@@ -23,6 +23,13 @@
   box-sizing: border-box;
 }
 
+/* hidden-attributtet må vinne over display i våre eigne reglar.
+   Nettlesaren sin [hidden]{display:none} har lågare spesifisitet enn
+   ein klasse, så .alarm{display:flex} slo han ut — overlegget blei
+   liggjande usynleg «skjult» over heile skjermen og åt alle klikk. */
+[hidden] { display: none !important; }
+
+
 html {
   scroll-behavior: smooth;
 }
