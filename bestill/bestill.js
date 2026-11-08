@@ -172,15 +172,19 @@ function byggLinje(l, i) {
     return rad;
   })()));
 
-  /* — ekstra som kostar — */
-  kort.appendChild(bolk('Vil du ha noko ekstra?', chipRad(OPPSETT.ekstra, l.ekstra, l, true)));
+  /* — topping som kostar — */
+  kort.appendChild(bolk('Topping', chipRad(OPPSETT.ekstra, l.ekstra, l, true)));
 
-  /* — saus, gratis, av frå start, anten–eller — */
-  kort.appendChild(bolk('Litt saus attåt? Vel éin',
+  /* — saus, gratis, av frå start, anten–eller.
+       «attåt» ville tydd ved sida av, i ei skål. Denne sausen går på
+       burgeren, så det måtte seiast. — */
+  kort.appendChild(bolk('Litt saus på burgeren? Vel éin',
     chipRad(OPPSETT.sausar, l.sausar, l, false, true)));
 
-  /* — tilbehøyr som følgjer med — */
-  kort.appendChild(bolk('På burgeren — hak bort det du ikkje vil ha',
+  /* — tilbehøyr som følgjer med.
+       Kan ikkje heite «på burgeren» no som sausen gjer det. «Dette
+       følgjer med» forklarar dessutan kvifor dei står avkryssa. — */
+  kort.appendChild(bolk('Dette følgjer med — hak bort det du ikkje vil ha',
     chipRad(OPPSETT.tilbehoer, l.tilbehoer, l, false)));
 
   /* — linjesum — */
