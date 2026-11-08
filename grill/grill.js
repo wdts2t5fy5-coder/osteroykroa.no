@@ -14,8 +14,15 @@ var OPPSETT = {
   // Eitt minutt. Vurderinga «kan me lage dette til den tida?» tek
   // sekund, ikkje minutt — og kunden har alt betalt, så kvart minutt
   // som går utan svar er eit minutt nærare ei henting som ikkje held.
-  eskalerSekund: 60,      // ugodteken så lenge → alarmen reiser seg att
-  ringKvartSekund: 6,     // kor ofte det ringjer medan noko er ukvittert
+  eskalerSekund: 60,      // kvittert, men ugodteken så lenge → påminning
+
+  // 6 sekund var for tett. Klangen varer halvanna, så det opplevdest
+  // som éin samanhengande lyd. 14 gjev fire–fem ring i minuttet: nok
+  // til at ingen går forbi henne, lite nok til at ho framleis er eit
+  // varsel og ikkje ein tilstand.
+  ringKvartSekund: 14,    // medan ingen har kvittert
+  paaminningSekund: 120,  // kvittert, men framleis ikkje godteken
+
   telefonRoy: '+4756193434'
 };
 
@@ -76,9 +83,18 @@ var Lyd = (function () {
     tone(t + 0.34, 1318.5, 1.9, 0.045);
   }
 
+  /* Påminninga er éin tone, ikkje treklangen. Nokon veit alt om denne
+     ordren — dette er ei lita dulting, ikkje ei melding. Svakare og
+     kortare, så ho ikkje tek merksemd frå ein ny ordre som kjem inn. */
+  function minn() {
+    if (!ctx || ctx.state !== 'running') return;
+    tone(ctx.currentTime, 659.25, 1.1, 0.055);
+  }
+
   return {
     slaaPaa: slaaPaa,
     ring: ring,
+    minn: minn,
     erPaa: function () { return !!ctx && ctx.state === 'running'; }
   };
 })();
@@ -395,8 +411,12 @@ function gronsakrad(g) {
 
 function finnFase(o, minuttAtt) {
   if (o.status === 'ny') {
-    var ventaSek = (Date.now() - o.motteke) / 1000;
-    return ventaSek > OPPSETT.eskalerSekund ? 'eskalert' : 'ny';
+    // Eskalert når nokon har sett henne og ho framleis ligg, eller når
+    // ho har vorte gamal utan at nokon har kvittert i det heile.
+    var sidan = sett[o.id]
+      ? (Date.now() - sett[o.id]) / 1000
+      : (Date.now() - o.motteke) / 1000;
+    return sidan > OPPSETT.eskalerSekund ? 'eskalert' : 'ny';
   }
   if (o.status === 'godteken' && minuttAtt <= OPPSETT.lagTidMinutt) return 'lag';
   if (o.status === 'klar') return 'klar';
@@ -464,31 +484,59 @@ function oppdaterKlokke() {
  */
 var sett = {};
 var sistRing = 0;
+var sistMinning = 0;
 
-function usetteOrdrar() {
+/** Ordrar ingen har kvittert for enno. Desse tek heile skjermen. */
+function heiltNye() {
+  return ordrar.filter(function (o) {
+    return o.status === 'ny' && !sett[o.id];
+  });
+}
+
+/** Kvitterte, men framleis ikkje godtekne. Desse får ei mild påminning. */
+function gloymde() {
   var no = Date.now();
   return ordrar.filter(function (o) {
-    if (o.status !== 'ny') return false;
-    if (!sett[o.id]) return true;
-    // Kvittert, men framleis ikkje godteken etter eskaleringstida:
-    // då reiser alarmen seg att. Ein ordre som berre blir sett på,
-    // blir aldri til mat.
-    return (no - o.motteke) / 1000 > OPPSETT.eskalerSekund &&
+    return o.status === 'ny' && sett[o.id] &&
            (no - sett[o.id]) / 1000 > OPPSETT.eskalerSekund;
   });
 }
 
+/* To ulike varsel, fordi dei to tilfella ikkje er like:
+ *
+ *   Heilt ny ordre      Ingen veit om henne. Full skjerm og klang, til
+ *                       nokon trykkjer.
+ *   Kvittert, ugodteken Nokon VEIT om henne. Då er det feil å ta over
+ *                       skjermen midt i ei arbeidsoppgåve. Éin mild
+ *                       tone med lange mellomrom, og kortet står raudt.
+ *
+ * Første versjonen gjorde ikkje dette skiljet: ein kvittert ordre blei
+ * rekna som usett att etter eskaleringstida, og dermed for alltid. Då
+ * ringde det kvart tiande sekund i det uendelege, og eit varsel som
+ * alltid står på er eit varsel ingen høyrer.
+ */
 function sjekkVarsel() {
-  var usette = usetteOrdrar();
   var alarm = document.getElementById('alarm');
-  alarm.hidden = !usette.length;
-
-  if (!usette.length) { sistRing = 0; return; }
-
+  var nye = heiltNye();
   var no = Date.now();
-  if (no - sistRing < OPPSETT.ringKvartSekund * 1000) return;
-  sistRing = no;
-  Lyd.ring();
+
+  alarm.hidden = !nye.length;
+
+  if (nye.length) {
+    if (no - sistRing >= OPPSETT.ringKvartSekund * 1000) {
+      sistRing = no;
+      Lyd.ring();
+    }
+    return;
+  }
+
+  sistRing = 0;
+
+  var gl = gloymde();
+  if (!gl.length) { sistMinning = 0; return; }
+  if (no - sistMinning < OPPSETT.paaminningSekund * 1000) return;
+  sistMinning = no;
+  Lyd.minn();
 }
 
 function kvitter() {
@@ -498,6 +546,7 @@ function kvitter() {
   });
   document.getElementById('alarm').hidden = true;
   sistRing = 0;
+  sistMinning = no;   // påminninga startar på nytt, ikkje med ein gong
 }
 
 /* ──────────────────────────────────────────────────────────────────
