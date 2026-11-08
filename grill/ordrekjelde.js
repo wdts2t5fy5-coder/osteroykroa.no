@@ -87,14 +87,15 @@
     var sum = 0;
     for (var i = 0; i < tal; i++) {
       var produkt = slump(PRODUKT);
-      var ost = Math.random() > 0.3;
-      var bacon = Math.random() > 0.5;
+      // Tal skiver, ikkje av/på — same som bestillingssida.
+      var ost = [0, 1, 1, 1, 2, 3][Math.floor(Math.random() * 6)];
+      var bacon = [0, 0, 1, 1, 2, 2][Math.floor(Math.random() * 6)];
       var energi = Math.random() > 0.75;
 
       var gronsaker = {};
       TILBEHOER.forEach(function (g) { gronsaker[g] = Math.random() > 0.18; });
 
-      var pris = PRIS[produkt] + (ost ? 20 : 0) + (bacon ? 20 : 0) + (energi ? 10 : 0);
+      var pris = PRIS[produkt] + ost * 20 + bacon * 20 + (energi ? 10 : 0);
       sum += pris;
 
       // Forma på ei ordrelinje. Dette er kontrakten grillskjermen les,

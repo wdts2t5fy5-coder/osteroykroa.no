@@ -325,11 +325,22 @@ var GRONSAKER = [
   { id: 'sylteagurk', bokstav: 'A', namn: 'sylteagurk' }
 ];
 
+/* Topping i tal skiver:
+ *     1 ost                 O
+ *     3 ost                 3O
+ *     1 ost, 1 bacon        O&B
+ *     3 ost, 2 bacon        3O&2B
+ *
+ * Talet blir utelate når det er éin. «1O» ville lagt til eit teikn utan
+ * å leggje til meining, og desto fleire teikn, desto meir må lesast.
+ */
 function toppingKode(l) {
-  if (l.ost && l.bacon) return 'O&B';
-  if (l.ost) return 'O';
-  if (l.bacon) return 'B';
-  return '';
+  var delar = [];
+  [['ost', 'O'], ['bacon', 'B']].forEach(function (p) {
+    var n = l[p[0]] || 0;
+    if (n > 0) delar.push((n > 1 ? n : '') + p[1]);
+  });
+  return delar.join('&');
 }
 
 function gronsakrad(g) {

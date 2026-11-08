@@ -28,10 +28,11 @@ var OPPSETT = {
     { id: 'trippel', gram: 360, namn: 'Buldring', produktnamn: 'Osterøymeny 360' }
   ],
 
-  // Kostar ekstra. På frå start, kunden hukar dei bort.
+  // Topping kjem i tal skiver, ikkje av/på. Éi av kvar frå start, og
+  // kunden kan gå opp eller heilt ned til null.
   ekstra: [
-    { id: 'ost',   namn: 'Ost',   pris: 20 },
-    { id: 'bacon', namn: 'Bacon', pris: 20 }
+    { id: 'ost',   namn: 'Ost',   pris: 20, fraStart: 1, maks: 5 },
+    { id: 'bacon', namn: 'Bacon', pris: 20, fraStart: 1, maks: 5 }
   ],
 
   // Drikke følgjer med menyen. Eitt val må stå, så denne gruppa oppfører
@@ -120,7 +121,7 @@ function nyLinje() {
     id: nesteId++, namn: '', storleik: 'enkel',
     ekstra: {}, drikke: {}, sausar: {}, tilbehoer: {}
   };
-  OPPSETT.ekstra.forEach(function (e) { l.ekstra[e.id] = true; });        // på frå start
+  OPPSETT.ekstra.forEach(function (e) { l.ekstra[e.id] = e.fraStart; });  // tal skiver
   OPPSETT.drikke.forEach(function (d, i) { l.drikke[d.id] = i === 0; });  // mineralvatn
   OPPSETT.sausar.forEach(function (s) { l.sausar[s.id] = false; });       // AV frå start
   OPPSETT.tilbehoer.forEach(function (t) { l.tilbehoer[t.id] = true; });  // på frå start
@@ -139,7 +140,7 @@ var opptekneLuker = []; // kjem frå tenaren når han finst
 
 function linjePris(l) {
   var sum = prisFor(l.storleik);
-  OPPSETT.ekstra.forEach(function (e) { if (l.ekstra[e.id]) sum += e.pris; });
+  OPPSETT.ekstra.forEach(function (e) { sum += e.pris * (l.ekstra[e.id] || 0); });
   sum += valdDrikke(l).pris;
   return sum;
 }
@@ -230,8 +231,8 @@ function byggLinje(l, i) {
     return rad;
   })()));
 
-  /* — topping som kostar — */
-  kort.appendChild(bolk('Topping', chipRad(OPPSETT.ekstra, l.ekstra, { visPris: true })));
+  /* — topping, i tal skiver — */
+  kort.appendChild(bolk('Topping', toppingRad(l)));
 
   /* — saus, gratis, av frå start, anten–eller.
        «attåt» ville tydd ved sida av, i ei skål. Denne sausen går på
@@ -265,6 +266,61 @@ function byggLinje(l, i) {
   kort.appendChild(sum);
 
   return kort;
+}
+
+/* Topping blir talde, ikkje hukte av, så chip-en duger ikkje her — ein
+   chip har to tilstandar, og dette har seks.
+   Ein rad per topping med minus, tal og pluss er tydelegare enn å pakke
+   eit tal inn i ein chip, og trykkflatene blir store nok til tommelen. */
+function toppingRad(l) {
+  var rot = document.createElement('div');
+  rot.className = 'topping-liste';
+
+  OPPSETT.ekstra.forEach(function (e) {
+    var n = l.ekstra[e.id] || 0;
+
+    var rad = document.createElement('div');
+    rad.className = 'topping' + (n ? ' er-paa' : '');
+
+    rad.appendChild(lag('span', 'topping-namn', e.namn));
+
+    var tel = document.createElement('div');
+    tel.className = 'topping-tel';
+    tel.appendChild(steg('&minus;', 'Færre ' + e.namn.toLowerCase(), n <= 0, function () {
+      l.ekstra[e.id] = Math.max(0, n - 1); teiknAlt();
+    }));
+    var verdi = lag('span', 'topping-tal', String(n));
+    verdi.setAttribute('aria-live', 'polite');
+    verdi.setAttribute('aria-label', n + ' ' + e.namn.toLowerCase());
+    tel.appendChild(verdi);
+    tel.appendChild(steg('+', 'Fleire ' + e.namn.toLowerCase(), n >= e.maks, function () {
+      l.ekstra[e.id] = Math.min(e.maks, n + 1); teiknAlt();
+    }));
+    rad.appendChild(tel);
+
+    rad.appendChild(lag('span', 'topping-pris', n ? '+' + (n * e.pris) : ''));
+    rot.appendChild(rad);
+  });
+
+  return rot;
+}
+
+function lag(tag, klasse, tekst) {
+  var e = document.createElement(tag);
+  e.className = klasse;
+  if (tekst != null) e.textContent = tekst;
+  return e;
+}
+
+function steg(teikn, merkelapp, av, fn) {
+  var b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'topping-knapp';
+  b.innerHTML = teikn;
+  b.setAttribute('aria-label', merkelapp);
+  b.disabled = av;
+  b.addEventListener('click', fn);
+  return b;
 }
 
 function bolk(tittel, innhald) {
@@ -365,8 +421,11 @@ function teiknOppsummering() {
     // Ekstra og saus står saman i «med», sidan kunden ikkje tenkjer på
     // dei som to kategoriar — berre som ting han har lagt på.
     var med = OPPSETT.ekstra
-      .filter(function (e) { return l.ekstra[e.id]; })
-      .map(function (e) { return e.namn.toLowerCase(); })
+      .filter(function (e) { return l.ekstra[e.id] > 0; })
+      .map(function (e) {
+        var n = l.ekstra[e.id];
+        return (n > 1 ? n + '\u00d7 ' : '') + e.namn.toLowerCase();
+      })
       .concat(OPPSETT.sausar
         .filter(function (s) { return l.sausar[s.id]; })
         .map(function (s) { return s.namn.toLowerCase(); }));
