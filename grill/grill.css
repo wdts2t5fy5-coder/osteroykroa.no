@@ -456,15 +456,38 @@ main { padding: 18px; }
    Grillen les kort og mange gonger. Difor teikn på faste plassar i
    staden for ord: auget lærer rekkja og ser eit hol utan å lese. */
 .topping-kode {
+  display: inline-flex;
+  align-items: baseline;
   margin-left: 9px;
   padding: 2px 8px;
   border-radius: 6px;
   background: #3a3128;
   color: #ffd98a;
-  font-size: 0.82em;
   font-weight: 800;
-  letter-spacing: 0.04em;
   vertical-align: 2px;
+}
+
+/* Talet er mindre enn bokstaven med vilje. Like store ville «3O» stått
+   i fare for å bli lese som «30» — O og 0 liknar, og auget slår saman
+   to like store teikn til eitt tal. Storleiksskilnaden seier at det
+   eine er ei mengd og det andre ei vare. */
+.tk-tal {
+  font-size: 0.68em;
+  margin-right: 1px;
+  opacity: 0.88;
+  font-variant-numeric: tabular-nums;
+}
+
+.tk-bokstav {
+  font-size: 0.95em;
+  letter-spacing: 0.02em;
+}
+
+.tk-og {
+  margin: 0 3px;
+  font-size: 0.7em;
+  font-weight: 600;
+  opacity: 0.6;
 }
 
 .gronsaker {

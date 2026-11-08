@@ -248,8 +248,8 @@ function byggOrdre(o) {
     // Produktnamn med topping-koden rett bak talet: O, B eller O&B.
     var p = el('span', 'linje-produkt');
     p.appendChild(document.createTextNode(l.produkt));
-    var kode = toppingKode(l);
-    if (kode) p.appendChild(el('span', 'topping-kode', kode));
+    var kode = toppingKodeEl(l);
+    if (kode) p.appendChild(kode);
     li.appendChild(p);
 
     li.appendChild(gronsakrad(l.gronsaker));
@@ -334,13 +334,43 @@ var GRONSAKER = [
  * Talet blir utelate når det er éin. «1O» ville lagt til eit teikn utan
  * å leggje til meining, og desto fleire teikn, desto meir må lesast.
  */
+var TOPPING = [
+  { felt: 'ost',   bokstav: 'O', namn: 'ost' },
+  { felt: 'bacon', bokstav: 'B', namn: 'bacon' }
+];
+
+/** Rein tekst — til aria-label, og til bongar og kvitteringar seinare. */
 function toppingKode(l) {
-  var delar = [];
-  [['ost', 'O'], ['bacon', 'B']].forEach(function (p) {
-    var n = l[p[0]] || 0;
-    if (n > 0) delar.push((n > 1 ? n : '') + p[1]);
+  return TOPPING
+    .filter(function (p) { return (l[p.felt] || 0) > 0; })
+    .map(function (p) { var n = l[p.felt]; return (n > 1 ? n : '') + p.bokstav; })
+    .join('&');
+}
+
+/* Same koden som element, med talet mindre enn bokstaven.
+ *
+ * I rein tekst står «3O» i fare for å bli lese som «30» — O og 0 liknar,
+ * og auget slår dei saman til eitt tal når dei er like store. Eit mindre
+ * siffer bryt dei frå kvarandre: det eine er ei mengd, det andre er ei
+ * vare.
+ */
+function toppingKodeEl(l) {
+  var med = TOPPING.filter(function (p) { return (l[p.felt] || 0) > 0; });
+  if (!med.length) return null;
+
+  var rot = el('span', 'topping-kode');
+  med.forEach(function (p, i) {
+    if (i) rot.appendChild(el('span', 'tk-og', '&'));
+    var n = l[p.felt];
+    if (n > 1) rot.appendChild(el('span', 'tk-tal', String(n)));
+    rot.appendChild(el('span', 'tk-bokstav', p.bokstav));
   });
-  return delar.join('&');
+
+  rot.setAttribute('aria-label', med.map(function (p) {
+    return l[p.felt] + ' ' + p.namn;
+  }).join(' og '));
+
+  return rot;
 }
 
 function gronsakrad(g) {
