@@ -623,6 +623,124 @@ section.alt {
   text-decoration: none;
 }
 
+/* ── Klikk og hent ────────────────────────────────────────────────
+   Innsalet av nettbestilling. Står på forsida og på menysida, så det
+   er ein komponent og ikkje to oppsett. Poenget er å gjere jobben
+   bestillingssida elles måtte gjort sjølv: forklare kva produktet er,
+   før kunden må velje noko. */
+.kh {
+  display: grid;
+  grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+  gap: 36px;
+  align-items: center;
+}
+
+.kh-bilete img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+
+.kh-stikk {
+  margin: 0 0 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.kh h2 {
+  font-family: var(--font-heading);
+  font-size: 1.9rem;
+  color: var(--color-primary-dark);
+  margin: 0 0 12px;
+}
+
+.kh-leiar {
+  font-size: 1.1rem;
+  line-height: 1.5;
+  margin: 0 0 12px;
+}
+
+.kh p {
+  margin: 0 0 12px;
+}
+
+.kh-punkt {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 22px;
+}
+
+.kh-punkt li {
+  position: relative;
+  padding-left: 26px;
+  margin-bottom: 6px;
+  color: var(--color-text-muted);
+}
+
+.kh-punkt li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+/* .btn i hovudstilarket er kvit med raud tekst, laga for den raude
+   hero-seksjonen. Her står knappen på lys bakgrunn. */
+.kh-knapp {
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 700;
+}
+
+.kh-knapp:hover {
+  background: var(--color-primary-dark);
+}
+
+/* Kompakt variant for menysida, der plakaten ville konkurrert med
+   matbileta som alt står der. */
+.kh--kompakt {
+  grid-template-columns: minmax(0, 170px) minmax(0, 1fr);
+  gap: 26px;
+  max-width: 760px;
+  margin: 0 auto 44px;
+  padding: 24px;
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+}
+
+.kh--kompakt h2 {
+  font-size: 1.4rem;
+}
+
+.kh--kompakt .kh-leiar {
+  font-size: 1rem;
+}
+
+@media (max-width: 700px) {
+  .kh,
+  .kh--kompakt {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+  /* På mobil er plakaten i full breidd for dominerande — ho ville skuve
+     både tekst og knapp under skjermkanten. */
+  .kh-bilete {
+    max-width: 230px;
+    margin: 0 auto;
+  }
+
+  .kh-knapp {
+    display: block;
+    text-align: center;
+  }
+}
+
 .social-links {
   display: flex;
   gap: 16px;
