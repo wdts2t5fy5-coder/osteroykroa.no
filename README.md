@@ -111,16 +111,26 @@ førespurnader kjem i same augeblink, fordi begge rekk å lese «ledig» før
 nokon av dei skriv. Databasen avgjer i staden, og den som tapar får
 beskjed om at tida nett blei teken.
 
-### Oppsett, ein gong
+### Oppsett, ein gong — i Cloudflare-panelet
 
-    npx wrangler login
-    npx wrangler d1 create osteroykroa          # lim id-en inn i wrangler.toml
-    npx wrangler d1 execute osteroykroa --file=schema.sql --remote
-    npx wrangler pages secret put GRILL_TOKEN   # vel eit kodeord
+Alt blir gjort i nettlesaren. Wrangler trengst ikkje, og det ligg ingen
+`wrangler.toml` i repoet: ein slik fil ville Cloudflare lese under
+bygging, og ein feil i henne kan få Functions til å falle ut utan at
+noko seier frå.
 
-Deretter må D1-bindinga `DB` koplast til Pages-prosjektet i
-Cloudflare-panelet: **Workers & Pages → osteroykroa-no → Settings →
-Bindings → D1**.
+1. **Lag databasen.** Storage & Databases → D1 → Create database,
+   namn `osteroykroa`.
+2. **Lag tabellane.** Opne databasen → Console → lim inn innhaldet i
+   `schema.sql` → Execute.
+3. **Kople henne til sida.** Workers & Pages → osteroykroa-no →
+   Settings → Bindings → Add → D1 database.
+   Variable name: `DB`. Database: `osteroykroa`.
+4. **Set kodeordet.** Same stad → Variables and Secrets → Add →
+   `GRILL_TOKEN`, type *Secret*.
+
+**Hugs Preview.** Bindingar og løyndomar blir sette per miljø. Testinga
+skjer på v2-greina, altså ei *preview*-utrulling — så steg 3 og 4 må
+gjerast for **Preview**, ikkje berre Production.
 
 Grillskjermen spør om kodeordet første gong han blir opna, og hugsar det
 i nettbrettet.
