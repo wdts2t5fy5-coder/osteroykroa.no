@@ -661,3 +661,53 @@
   color: var(--color-text-muted);
   font-variant-numeric: tabular-nums;
 }
+
+/* ── Telefonnummer ────────────────────────────────────────────── */
+.tlf-felt {
+  display: block;
+  margin: 16px 0 4px;
+}
+
+.tlf-felt > span {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 6px;
+}
+
+.tlf-felt input {
+  width: 100%;
+  padding: 11px 13px;
+  border: 2px solid var(--color-border);
+  border-radius: 9px;
+  background: #fff;
+  font-family: var(--font-ui);
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  color: inherit;
+}
+
+.tlf-felt input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+/* Først etter at nokon har byrja å skrive noko som ikkje kan bli eit
+   nummer. Å lyse raudt på eit tomt felt er å kjefte før nokon har
+   gjort noko. */
+.tlf-felt input.er-ugyldig {
+  border-color: var(--color-primary);
+  background: #fdf1f2;
+}
+
+.tlf-felt small {
+  display: block;
+  margin-top: 5px;
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}

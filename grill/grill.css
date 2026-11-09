@@ -402,12 +402,16 @@ main { padding: 18px; }
   animation: alarm-logo 1.1s ease-in-out infinite;
 }
 
+/* Tekstane står stille og svarte. Det er botnen og logoen som blinkar.
+   Svart les godt både mot kvitt og mot raudt (kontrast 4,5:1 mot raudt),
+   og ein tekst som ikkje flimrar er lettare å oppfatte enn ein som gjer
+   det — særleg når han står der heile tida. */
 .alarm-tittel,
 .alarm-under {
   margin: 0;
   text-align: center;
   font-weight: 800;
-  animation: alarm-tekst 1.1s ease-in-out infinite;
+  color: #14110f;
 }
 
 .alarm-tittel {
@@ -432,11 +436,6 @@ main { padding: 18px; }
   50%      { filter: brightness(0) invert(1); }
 }
 
-@keyframes alarm-tekst {
-  0%, 100% { color: var(--f-ny); }
-  50%      { color: #ffffff; }
-}
-
 /* For dei som har slått av rørsle: alarmen skal framleis stoppe deg,
    men ho skal stå stille. */
 @media (prefers-reduced-motion: reduce) {
@@ -448,8 +447,6 @@ main { padding: 18px; }
   }
   .alarm { background: var(--f-ny); }
   .alarm-logo { filter: brightness(0) invert(1); }
-  .alarm-tittel,
-  .alarm-under { color: #fff; }
 }
 
 /* ── Topping-kode og grønsaksrad ──────────────────────────────────
@@ -471,10 +468,11 @@ main { padding: 18px; }
    i fare for å bli lese som «30» — O og 0 liknar, og auget slår saman
    to like store teikn til eitt tal. Storleiksskilnaden seier at det
    eine er ei mengd og det andre ei vare. */
+/* Talet er like stort som bokstaven. For at «3O» ikkje skal lesast som
+   «30», held me dei frå kvarandre med luft i staden for med storleik. */
 .tk-tal {
-  font-size: 0.68em;
-  margin-right: 1px;
-  opacity: 0.88;
+  font-size: 0.95em;
+  margin-right: 3px;
   font-variant-numeric: tabular-nums;
 }
 

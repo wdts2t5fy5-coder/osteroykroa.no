@@ -135,7 +135,7 @@ function valdDrikke(l) {
   return OPPSETT.drikke[0];
 }
 
-var ordre = { linjer: [nyLinje()], luke: null };
+var ordre = { linjer: [nyLinje()], luke: null, telefon: '' };
 var opptekneLuker = []; // kjem frå tenaren når han finst
 
 function linjePris(l) {
@@ -451,10 +451,11 @@ function teiknOppsummering() {
   document.getElementById('sum-total').textContent = totalPris() + ',-';
 
   var knapp = document.getElementById('betal');
-  knapp.disabled = !ordre.luke;
-  knapp.textContent = ordre.luke
-    ? 'Betal ' + totalPris() + ',- med Vipps'
-    : 'Vel ei hentetid';
+  var harTlf = gyldigTelefon(ordre.telefon);
+  knapp.disabled = !ordre.luke || !harTlf;
+  knapp.textContent = !ordre.luke ? 'Vel ei hentetid'
+    : !harTlf ? 'Skriv telefonnummeret ditt'
+    : 'Betal ' + totalPris() + ',- med Vipps';
 }
 
 /* ──────────────────────────────────────────────────────────────────
@@ -543,6 +544,18 @@ function somListe(ord) {
   return ord.slice(0, -1).join(', ') + ' og ' + ord[ord.length - 1];
 }
 
+/* Åtte siffer, eventuelt med +47 eller 0047 føre. Me krev eit gyldig
+   nummer fordi grillen må kunne nå kunden — eit felt som godtek kva
+   som helst, er same som ikkje å spørje. */
+function reinTelefon(verdi) {
+  return String(verdi).replace(/[^\d+]/g, '');
+}
+
+function gyldigTelefon(verdi) {
+  var t = reinTelefon(verdi).replace(/^(\+47|0047)/, '');
+  return /^\d{8}$/.test(t);
+}
+
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, function (c) {
     return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
@@ -571,6 +584,13 @@ document.addEventListener('DOMContentLoaded', function () {
   Array.prototype.forEach.call(document.querySelectorAll('.tlf'), function (a) {
     a.textContent = OPPSETT.telefon;
     a.href = 'tel:' + OPPSETT.telefonLenke;
+  });
+
+  var tlf = document.getElementById('kundetlf');
+  tlf.addEventListener('input', function () {
+    ordre.telefon = tlf.value;
+    tlf.classList.toggle('er-ugyldig', tlf.value.length > 3 && !gyldigTelefon(tlf.value));
+    teiknOppsummering();
   });
 
   document.getElementById('betal').addEventListener('click', function () {
