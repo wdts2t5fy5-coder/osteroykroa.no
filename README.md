@@ -118,10 +118,12 @@ Alt blir gjort i nettlesaren. Wrangler trengst ikkje, og det ligg ingen
 bygging, og ein feil i henne kan få Functions til å falle ut utan at
 noko seier frå.
 
-1. **Lag databasen.** Storage & Databases → D1 → Create database,
-   namn `osteroykroa`.
-2. **Lag tabellane.** Opne databasen → Console → lim inn innhaldet i
-   `schema.sql` → Execute.
+1. ~~**Lag databasen.**~~ GJORT 9. november 2026.
+   Namn `osteroykroa`, i Vest-Europa.
+   `database_id = e748c42d-dfd0-44aa-96af-cf2dded52191`
+2. ~~**Lag tabellane.**~~ GJORT. Skjemaet er køyrt, og låsen er
+   verifisert: to ordrar på same luke gjev UNIQUE-feil, og ei avvist
+   ordre frigjer luka att.
 3. **Kople henne til sida.** Workers & Pages → osteroykroa-no →
    Settings → Bindings → Add → D1 database.
    Variable name: `DB`. Database: `osteroykroa`.
