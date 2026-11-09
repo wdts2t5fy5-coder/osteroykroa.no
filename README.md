@@ -82,3 +82,51 @@ Reglane for hentetider:
 
 Merk at den lokale filtenaren ikkje kan reine adresser utan `.html`, slik
 Cloudflare Pages kan. Lokalt må du skrive `/kontakt.html`, ikkje `/kontakt`.
+
+## Nettbestilling — tenarsida
+
+Bestillinga køyrer på **Cloudflare Pages Functions** i same prosjekt som
+nettstaden. Ingen eigen Worker, ingen eigen utrulling: filene under
+`functions/` går ut med same `git push` som resten.
+
+    functions/_lib/luker.js      lukelogikken — den einaste sanninga
+    functions/_lib/svar.js       JSON-svar og løyvesjekk
+    functions/api/luker.js       GET  ledige hentetider
+    functions/api/ordre.js       POST ny bestilling
+    functions/api/grill/         grillskjermen sine endepunkt
+    schema.sql                   databasen
+
+### Kvifor tenaren eig lukelogikken
+
+`bestill/slots.js` er framleis i repoet med testane sine, men blir ikkje
+lenger brukt av bestillingssida. Han var rett så lenge alt låg i
+nettlesaren, men ein nettlesar veit ikkje kva andre har bestilt, og alt
+han reknar ut kan endrast av den som vil. No spør sida `/api/luker`.
+
+### Låsen
+
+Det er ikkje kode som hindrar to kundar i å ta same tida — det er ein
+unik indeks i databasen. Ein sjekk i koden kan tape mot seg sjølv når to
+førespurnader kjem i same augeblink, fordi begge rekk å lese «ledig» før
+nokon av dei skriv. Databasen avgjer i staden, og den som tapar får
+beskjed om at tida nett blei teken.
+
+### Oppsett, ein gong
+
+    npx wrangler login
+    npx wrangler d1 create osteroykroa          # lim id-en inn i wrangler.toml
+    npx wrangler d1 execute osteroykroa --file=schema.sql --remote
+    npx wrangler pages secret put GRILL_TOKEN   # vel eit kodeord
+
+Deretter må D1-bindinga `DB` koplast til Pages-prosjektet i
+Cloudflare-panelet: **Workers & Pages → osteroykroa-no → Settings →
+Bindings → D1**.
+
+Grillskjermen spør om kodeordet første gong han blir opna, og hugsar det
+i nettbrettet.
+
+### Det som ikkje er bygd enno
+
+- Vipps. Bestillinga blir lagra, men ingen pengar blir trekte.
+- E-post til kunde og til godtfolk@osteroykroa.no.
+- Automatisk sletting etter 30 dagar, slik personvernerklæringa lovar.

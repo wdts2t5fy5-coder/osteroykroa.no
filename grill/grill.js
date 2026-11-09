@@ -151,20 +151,6 @@ function el(tag, klasse, tekst) {
    ────────────────────────────────────────────────────────────────── */
 var ordrar = [];
 
-/* Alle luker som ikkje er ledige: dei som alt har ei ordre, pluss dei
- * kjøkenet har stengt.
- *
- * Dette må reknast ut frå ordrane, ikkje berre frå stengingslista. Elles
- * reknar «Steng neste luke» 13:00 som ledig sjølv om det ligg ei ordre
- * der, og tilbyr å stengje ei luke som uansett er oppteken.
- */
-function opptekneLuker() {
-  var frakOrdrar = ordrar
-    .filter(function (o) { return o.status !== 'avvist'; })
-    .map(function (o) { return o.hentetid; });
-  return frakOrdrar.concat(Ordrekjelde.hentStengde());
-}
-
 function sorterPaaTid(a, b) {
   return tidTilMinutt(a.hentetid) - tidTilMinutt(b.hentetid);
 }
@@ -594,32 +580,55 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   document.getElementById('steng-luke').addEventListener('click', function () {
-    var luker = ledigeLuker({ now: new Date(), opptekne: opptekneLuker() })
-      .filter(function (l) { return l.ledig; });
-    if (!luker.length) { alert('Det er ingen ledige luker igjen i dag.'); return; }
-
-    var neste = luker[0].tid;
-    if (confirm('Stenge ' + neste + ' for nettbestilling?\n\n' +
-                'Det er den første tida som framleis er ledig. ' +
-                'Kundar kan då ikkje velje henting ' + neste + '.')) {
-      Ordrekjelde.steng(neste);
-      alert(neste + ' er stengd.\n\n' +
-            'MERK: I denne testversjonen gjeld det berre på denne skjermen. ' +
-            'Først når tenaren er på plass når det fram til bestillingssida.');
-    }
+    // Tenaren avgjer kva som er neste ledige. To nettbrett kunne elles
+    // rekna seg fram til kvar si luke og begge trudd dei stengde den same.
+    if (!confirm('Stenge den første ledige hentetida for nettbestilling?')) return;
+    Ordrekjelde.steng(null)
+      .then(function (d) { alert(d.stengd + ' er stengd for nettbestilling.'); })
+      .catch(function (e) {
+        alert(String(e.message) === 'LOYVE'
+          ? 'Skjermen manglar løyve. Last sida på nytt og skriv inn kodeordet.'
+          : 'Klarte ikkje stengje luka. Prøv igjen.');
+      });
   });
 
-  var test = document.getElementById('testordre');
-  if (Ordrekjelde.erTestkjelde) {
-    test.addEventListener('click', function () {
-      if (!Ordrekjelde.lagTestordre()) alert('Ingen ledige luker igjen i dag.');
+  // Utan kodeord kjem skjermen ingen veg. Me spør ein gong, og lagrar
+  // det i nettbrettet — personalet skal ikkje taste det kvar morgon.
+  var loyve = document.getElementById('loyve');
+  var kodefelt = document.getElementById('loyve-kode');
+
+  document.getElementById('loyve-skjema').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var kode = kodefelt.value.trim();
+    if (!kode) return;
+
+    // Lyden blir slått på her. Dette er det einaste trykket me er
+    // sikre på at skjer etter ein omstart, og utan det er alarmen stum.
+    Lyd.slaaPaa();
+
+    Ordrekjelde.settToken(kode).then(function () {
+      if (Ordrekjelde.sisteFeil() === 'LOYVE') {
+        document.getElementById('loyve-feil').hidden = false;
+        kodefelt.value = '';
+        kodefelt.focus();
+        return;
+      }
+      loyve.hidden = true;
+      oppdaterStatuslinje();
     });
-    document.getElementById('tom-test').addEventListener('click', function () {
-      if (confirm('Slette alle testordrar?')) Ordrekjelde.tomTestdata();
-    });
-  } else {
-    document.getElementById('testverktoy').hidden = true;
+  });
+
+  if (!Ordrekjelde.harToken()) {
+    loyve.hidden = false;
+    kodefelt.focus();
   }
+
+  Ordrekjelde.start();
+
+  // Skulle kodeordet bli ugyldig seinare, kjem skjemaet opp att.
+  Ordrekjelde.lytt(function () {
+    if (Ordrekjelde.sisteFeil() === 'LOYVE') loyve.hidden = false;
+  });
 
   haldVaken();
   oppdaterKlokke();

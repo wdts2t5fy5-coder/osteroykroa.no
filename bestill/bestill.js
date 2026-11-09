@@ -136,7 +136,6 @@ function valdDrikke(l) {
 }
 
 var ordre = { linjer: [nyLinje()], luke: null, telefon: '' };
-var opptekneLuker = []; // kjem frå tenaren når han finst
 
 function linjePris(l) {
   var sum = prisFor(l.storleik);
@@ -379,11 +378,51 @@ function chipRad(liste, tilstand, val) {
 /* ──────────────────────────────────────────────────────────────────
    Oppteikning — hentetider
    ────────────────────────────────────────────────────────────────── */
+/* Lukene kjem frå tenaren. Nettlesaren reknar dei ikkje ut sjølv —
+   han veit ikkje kva andre har bestilt, og alt han reknar ut kan
+   endrast av den som vil. */
+var luker = [];
+var lukerLasta = false;
+var lukerFeila = false;
+
+function hentLuker() {
+  return fetch('/api/luker', { cache: 'no-store' })
+    .then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function (d) {
+      luker = d.luker || [];
+      lukerLasta = true;
+      lukerFeila = false;
+      teiknAlt();
+    })
+    .catch(function () {
+      // Viktig skilje: «ingen tider igjen» og «fekk ikkje kontakt» ser
+      // like ut herifrå, men betyr heilt ulike ting for kunden. Den
+      // første er ei opplysning, den andre er noko som kan prøvast om att.
+      lukerLasta = true;
+      lukerFeila = true;
+      teiknAlt();
+    });
+}
+
 function teiknLuker() {
   var rot = document.getElementById('luker');
-  var luker = ledigeLuker({ now: new Date(), opptekne: opptekneLuker });
 
   rot.innerHTML = '';
+
+  if (!lukerLasta) {
+    rot.innerHTML = '<p class="luker-tomt">Hentar ledige tider …</p>';
+    return;
+  }
+
+  if (lukerFeila) {
+    rot.innerHTML = '<p class="luker-tomt">Me fekk ikkje henta hentetidene akkurat no. ' +
+      'Prøv å laste sida på nytt, eller ring oss på ' +
+      '<a href="tel:' + OPPSETT.telefonLenke + '">' + OPPSETT.telefon + '</a>.</p>';
+    return;
+  }
 
   if (!luker.length) {
     rot.innerHTML = '<p class="luker-tomt">Det er ikkje fleire hentetider i dag. ' +
@@ -568,6 +607,29 @@ function teiknAlt() {
   teiknOppsummering();
 }
 
+/* Mellombels kvittering. Når Vipps er kopla til, går kunden herifrå
+   til betaling i staden, og kvitteringa kjem etterpå. */
+function visKvittering(d) {
+  var ramme = document.querySelector('.oppsummering');
+  ramme.innerHTML =
+    '<h2><span class="steg-nr">\u2713</span> Bestillinga er motteken</h2>' +
+    '<p class="kvitt-tid">Hent kl. <strong>' + d.hentetid + '</strong></p>' +
+    '<p>Bestillingsnummer <strong>' + d.nr + '</strong> \u00b7 ' + d.sum + ',-</p>' +
+    '<div class="merknad merknad-aatvaring"><strong>Betaling er ikkje kopla til enno.</strong> ' +
+    'Bestillinga er lagra og ligg på grillskjermen, men ingen pengar er trekte. ' +
+    'Når Vipps er på plass, blir dette steget betaling.</div>';
+  ramme.scrollIntoView({ block: 'center' });
+}
+
+function visFeil(melding) {
+  var boks = document.getElementById('vipps-mangler');
+  boks.hidden = false;
+  boks.innerHTML = '<strong>' + escapeHtml(melding) + '</strong>';
+  var knapp = document.getElementById('betal');
+  knapp.disabled = false;
+  teiknOppsummering();
+}
+
 /* ──────────────────────────────────────────────────────────────────
    Oppstart
    ────────────────────────────────────────────────────────────────── */
@@ -594,7 +656,45 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   document.getElementById('betal').addEventListener('click', function () {
-    document.getElementById('vipps-mangler').hidden = false;
+    var knapp = document.getElementById('betal');
+    knapp.disabled = true;
+    knapp.textContent = 'Sender …';
+
+    fetch('/api/ordre', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        hentetid: ordre.luke,
+        telefon: ordre.telefon,
+        linjer: ordre.linjer.map(function (l) {
+          return {
+            namn: l.namn,
+            storleik: l.storleik,
+            ost: l.ekstra.ost || 0,
+            bacon: l.ekstra.bacon || 0,
+            saus: OPPSETT.sausar.filter(function (x) { return l.sausar[x.id]; })
+                    .map(function (x) { return x.namn; })[0] || null,
+            gronsaker: l.tilbehoer,
+            drikke: valdDrikke(l).namn
+          };
+        })
+      })
+    })
+      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (svar) {
+        if (svar.ok) {
+          visKvittering(svar.d);
+        } else {
+          // Vanlegaste tilfellet: nokon tok tida medan kunden valde.
+          // Me hentar lukene på nytt så lista er sann med ein gong.
+          visFeil(svar.d.feil || 'Noko gjekk gale. Prøv igjen.');
+          hentLuker();
+        }
+      })
+      .catch(function () {
+        visFeil('Fekk ikkje kontakt. Sjekk nettet og prøv igjen.');
+        teiknAlt();
+      });
   });
 
   teiknAlt();
@@ -602,13 +702,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Luker forsvinn etter kvart som tida går. Utan dette kunne ein kunde
   // sitje med sida open og velje ei luke som nett blei for nær i tid.
+  hentLuker();
   setInterval(function () {
     var foer = ordre.luke;
-    teiknLuker();
-    var finst = Array.prototype.some.call(
-      document.querySelectorAll('#luker .luke'),
-      function (k) { return k.textContent === foer; }
-    );
-    if (foer && !finst) { ordre.luke = null; teiknAlt(); }
+    hentLuker().then(function () {
+      // Tida kan ha gått ut, eller nokon andre kan ha teke henne
+      // medan sida stod open. Begge delar ser like ut herifrå.
+      var finst = luker.some(function (l) { return l.tid === foer && l.ledig; });
+      if (foer && !finst) { ordre.luke = null; teiknAlt(); }
+    });
   }, 30000);
 });

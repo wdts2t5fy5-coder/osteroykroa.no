@@ -12,7 +12,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="stylesheet" href="/grill/grill.css?v=8">
+  <link rel="stylesheet" href="/grill/grill.css?v=9">
 </head>
 <body id="body">
 
@@ -23,6 +23,21 @@
     <img class="alarm-logo" src="/images/logo.webp" width="760" height="131" alt="">
     <p class="alarm-tittel">Ny bestilling</p>
     <p class="alarm-under">Trykk kvar som helst</p>
+  </div>
+
+  <!-- Innlogging. Eit eige skjema og ikkje prompt(): prompt er
+       blokkert i fleire samanhengar, mellom anna når sida køyrer som
+       app frå heimskjermen — som er nettopp slik nettbrettet skal
+       køyre. -->
+  <div id="loyve" class="loyve" hidden>
+    <form id="loyve-skjema" class="loyve-boks">
+      <h1>Grillskjerm</h1>
+      <label for="loyve-kode">Kodeord</label>
+      <input type="password" id="loyve-kode" autocomplete="current-password"
+             autocapitalize="off" autocorrect="off" spellcheck="false" required>
+      <p id="loyve-feil" class="loyve-feil" hidden>Feil kodeord. Prøv igjen.</p>
+      <button type="submit" class="kn kn--ja">Opne skjermen</button>
+    </form>
   </div>
 
   <header class="grill-topp">
@@ -65,15 +80,7 @@
     </section>
   </main>
 
-  <footer id="testverktoy" class="testverktoy">
-    <span class="testmerke">TESTVERSJON</span>
-    <span>Ingen av desse ordrane er verkelege. Dei ligg berre i denne nettlesaren.</span>
-    <button type="button" id="testordre" class="toppknapp">Lag testordre</button>
-    <button type="button" id="tom-test" class="toppknapp">Tøm</button>
-  </footer>
-
-  <script src="/bestill/slots.js?v=1"></script>
-  <script src="/grill/ordrekjelde.js?v=4"></script>
-  <script src="/grill/grill.js?v=10"></script>
+  <script src="/grill/ordrekjelde.js?v=6"></script>
+  <script src="/grill/grill.js?v=12"></script>
 </body>
 </html>

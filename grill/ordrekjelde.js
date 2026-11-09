@@ -1,185 +1,109 @@
-/* Ordrekjelde for grillskjermen.
+/* Ordrekjelde for grillskjermen — no mot ekte data.
  *
- * Dette er eit MELLOMLEGG. Skjermen snakkar berre med dette grensesnittet,
- * aldri med tenaren direkte. Når Workers og D1 er på plass, blir denne
- * fila bytt ut med ein som gjer verkelege kall — og grill.js treng ikkje
- * endrast i det heile.
+ * Dette er same mellomlegget som før, men innmaten er bytt ut: i staden
+ * for testordrar i localStorage spør han tenaren. grill.js er ikkje
+ * endra — det var heile poenget med å ha eit mellomlegg.
  *
- * Fram til då ligg ordrane i localStorage, slik at dei overlever at
- * nettbrettet blir lada ut eller sida lasta på nytt under testing.
- *
- * STATUSAR
- *   ny        venter på at nokon i grillen godtek. Dette er den einaste
- *             statusen som utløyser lyd og eskalering.
- *   godteken  kjøkenet har sagt ja. Kunden har fått stadfesting.
- *   klar      ligg i luka, venter på kunden.
- *   henta     ferdig.
- *   avvist    me klarte ikkje levere. Krev refusjon.
+ * Skjermen spør kvart femte sekund. Det er ikkje elegant, men det er
+ * robust: skjermen hentar seg inn att av seg sjølv etter ein nettbrot,
+ * ei omstart eller eit tapt wifi, utan at nokon treng gjere noko.
  */
 (function (global) {
   'use strict';
 
-  var NOKKEL = 'osteroykroa-grill-testordrar';
-  var lyttarar = [];
+  var NOKKEL_TOKEN = 'osteroykroa-grill-token';
+  var INTERVALL_MS = 5000;
 
-  /* ── Lagring ──────────────────────────────────────────────────── */
-  function les() {
-    try {
-      var raa = localStorage.getItem(NOKKEL);
-      return raa ? JSON.parse(raa) : [];
-    } catch (e) {
-      return [];
-    }
+  var lyttarar = [];
+  var ordrar = [];
+  var stengde = [];
+  var sisteFeil = null;
+
+  function token() {
+    try { return localStorage.getItem(NOKKEL_TOKEN) || ''; } catch (e) { return ''; }
   }
 
-  function skriv(ordrar) {
-    try {
-      localStorage.setItem(NOKKEL, JSON.stringify(ordrar));
-    } catch (e) {
-      /* privat modus e.l. — skjermen skal framleis verke i minnet */
-    }
-    varsle();
+  function settToken(t) {
+    try { localStorage.setItem(NOKKEL_TOKEN, t); } catch (e) {}
+  }
+
+  function kall(sti, val) {
+    val = val || {};
+    val.headers = Object.assign({
+      'authorization': 'Bearer ' + token(),
+      'content-type': 'application/json'
+    }, val.headers || {});
+    return fetch('/api/grill/' + sti, val).then(function (r) {
+      if (r.status === 401) throw new Error('LOYVE');
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    });
   }
 
   function varsle() {
-    var ordrar = les();
     lyttarar.forEach(function (fn) { fn(ordrar); });
   }
 
-  /* ── Testdata ─────────────────────────────────────────────────── */
-  var FORNAMN = ['Theodor', 'Semoa', 'Besto', 'Onkel', 'Tante', 'Cowboyen',
-                 'Storebror', 'Lillesøster', 'Damo', 'Typen'];
-  var PRODUKT = ['Osterøymeny 120', 'Osterøymeny 240', 'Osterøymeny 360'];
-  var PRIS = { 'Osterøymeny 120': 239, 'Osterøymeny 240': 299, 'Osterøymeny 360': 359 };
-  // Same id-ar som bestillingssida brukar, så dei to snakkar same språk.
-  var TILBEHOER = ['salat', 'mais', 'dressing', 'lok', 'sylteagurk'];
-
-  function slump(liste) {
-    return liste[Math.floor(Math.random() * liste.length)];
-  }
-
-  function nesteOrdrenummer(ordrar) {
-    var hogst = 0;
-    ordrar.forEach(function (o) {
-      var n = parseInt(String(o.id).replace(/\D/g, ''), 10);
-      if (n > hogst) hogst = n;
+  function hentNo() {
+    return kall('ordrar').then(function (d) {
+      ordrar = d.ordrar || [];
+      stengde = d.stengde || [];
+      sisteFeil = null;
+      varsle();
+    }).catch(function (e) {
+      // Me held på det me har. Ein skjerm som tømmer seg sjølv fordi
+      // wifien blunka, er verre enn ein som viser litt gamle data.
+      sisteFeil = String(e.message || e);
+      varsle();
     });
-    return 'A' + (hogst + 1);
   }
 
-  /** Lagar ei realistisk testordre til neste ledige luke. */
-  function lagTestordre() {
-    var ordrar = les();
-    // Stengde luker tel som opptekne — ei testordre skal ikkje kunne
-    // hamne i ei luke kjøkenet nettopp har stengt.
-    var opptekne = ordrar
-      .filter(function (o) { return o.status !== 'avvist'; })
-      .map(function (o) { return o.hentetid; })
-      .concat(Ordrekjelde.hentStengde());
-
-    var luke = (typeof nesteLedige === 'function')
-      ? nesteLedige({ now: new Date(), opptekne: opptekne })
-      : null;
-    if (!luke) return null;
-
-    var tal = 1 + Math.floor(Math.random() * 2);
-    var linjer = [];
-    var sum = 0;
-    for (var i = 0; i < tal; i++) {
-      var produkt = slump(PRODUKT);
-      // Tal skiver, ikkje av/på — same som bestillingssida.
-      var ost = [0, 1, 1, 1, 2, 3][Math.floor(Math.random() * 6)];
-      var bacon = [0, 0, 1, 1, 2, 2][Math.floor(Math.random() * 6)];
-      var energi = Math.random() > 0.75;
-
-      var gronsaker = {};
-      TILBEHOER.forEach(function (g) { gronsaker[g] = Math.random() > 0.18; });
-
-      var pris = PRIS[produkt] + ost * 20 + bacon * 20 + (energi ? 10 : 0);
-      sum += pris;
-
-      // Forma på ei ordrelinje. Dette er kontrakten grillskjermen les,
-      // og den tenaren skal levere når han kjem: eigne felt for kvar
-      // ting, ikkje lister med tekst. Skjermen skal sleppe å tolke.
-      linjer.push({
-        namn: slump(FORNAMN),
-        produkt: produkt,
-        ost: ost,
-        bacon: bacon,
-        saus: Math.random() > 0.7 ? slump(['Kebabsaus', 'Bearnaise']) : null,
-        gronsaker: gronsaker,
-        drikke: energi ? 'Energidrikk' : 'Mineralvatn',
-        aldersgrense: energi,
-        pris: pris
-      });
-    }
-
-    var ordre = {
-      id: nesteOrdrenummer(ordrar),
-      motteke: Date.now(),
-      hentetid: luke.tid,
-      status: 'ny',
-      kunde: { namn: slump(FORNAMN), telefon: '9' + (10000000 + Math.floor(Math.random() * 89999999)) },
-      linjer: linjer,
-      sum: sum
-    };
-
-    ordrar.push(ordre);
-    skriv(ordrar);
-    return ordre;
-  }
-
-  /* ── Grensesnittet skjermen brukar ────────────────────────────── */
   var Ordrekjelde = {
-    /** Kallast med heile lista no, og på nytt ved kvar endring. */
     lytt: function (fn) {
       lyttarar.push(fn);
-      fn(les());
+      fn(ordrar);
     },
 
-    hent: les,
+    hent: function () { return ordrar; },
+
+    hentStengde: function () { return stengde; },
 
     settStatus: function (id, status) {
-      var ordrar = les();
-      ordrar.forEach(function (o) {
-        if (o.id === id) {
-          o.status = status;
-          if (status === 'godteken') o.godteke = Date.now();
-        }
-      });
-      skriv(ordrar);
-    },
+      var o = ordrar.filter(function (x) { return x.id === id; })[0];
+      if (!o) return;
 
-    /* Luker kjøkenet har stengt for nettbestilling. Dei må overleve at
-       sida blir lasta på nytt — ei stengd luke som kjem att av seg
-       sjølv er verre enn inga stenging. */
-    hentStengde: function () {
-      try {
-        var raa = localStorage.getItem(NOKKEL + '-stengde');
-        return raa ? JSON.parse(raa) : [];
-      } catch (e) {
-        return [];
-      }
+      // Vis endringa med ein gong, og la tenaren stadfeste etterpå.
+      // Eit kjøkken skal ikkje måtte vente på nettverket for å sjå at
+      // trykket gjekk inn.
+      o.status = status;
+      varsle();
+
+      kall('status', {
+        method: 'POST',
+        body: JSON.stringify({ nr: o.nr, status: status })
+      }).then(hentNo).catch(hentNo);
     },
 
     steng: function (tid) {
-      var liste = Ordrekjelde.hentStengde();
-      if (liste.indexOf(tid) === -1) liste.push(tid);
-      try {
-        localStorage.setItem(NOKKEL + '-stengde', JSON.stringify(liste));
-      } catch (e) { /* privat modus */ }
-      varsle();
+      return kall('steng', {
+        method: 'POST',
+        body: JSON.stringify({ hentetid: tid })
+      }).then(function (d) { return hentNo().then(function () { return d; }); });
     },
 
-    /** Berre i testmodus. Den ekte kjelda får ordrar frå Vipps. */
-    lagTestordre: lagTestordre,
+    /* Statuslinja spør om dette for å kunne seie frå når skjermen har
+       mista kontakten. */
+    sisteFeil: function () { return sisteFeil; },
 
-    tomTestdata: function () {
-      try { localStorage.removeItem(NOKKEL + '-stengde'); } catch (e) {}
-      skriv([]);
-    },
+    harToken: function () { return !!token(); },
+    settToken: function (t) { settToken(t); return hentNo(); },
 
-    erTestkjelde: true
+    erTestkjelde: false,
+
+    start: function () {
+      hentNo();
+      setInterval(hentNo, INTERVALL_MS);
+    }
   };
 
   global.Ordrekjelde = Ordrekjelde;

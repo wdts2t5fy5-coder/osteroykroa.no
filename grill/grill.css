@@ -545,3 +545,59 @@ main,
 .grill-topp,
 .testverktoy,
 .vakenvarsel { position: relative; z-index: 1; }
+
+/* ── Innlogging ───────────────────────────────────────────────── */
+.loyve {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--m-botn);
+}
+
+.loyve-boks {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.loyve-boks h1 {
+  margin: 0 0 6px;
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+.loyve-boks label {
+  font-size: 0.85rem;
+  color: var(--m-dempa);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.loyve-boks input {
+  padding: 15px 16px;
+  border: 2px solid var(--m-kant);
+  border-radius: 11px;
+  background: var(--m-kort);
+  color: var(--m-tekst);
+  font: inherit;
+  font-size: 1.15rem;
+  letter-spacing: 0.08em;
+}
+
+.loyve-boks input:focus {
+  outline: none;
+  border-color: var(--f-klar);
+}
+
+.loyve-feil {
+  margin: 0;
+  color: var(--f-ny);
+  font-weight: 600;
+  font-size: 0.92rem;
+}

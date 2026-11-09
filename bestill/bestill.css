@@ -711,3 +711,10 @@
   font-size: 0.8rem;
   color: var(--color-text-muted);
 }
+
+.kvitt-tid {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  color: var(--color-primary-dark);
+  margin: 0 0 6px;
+}
