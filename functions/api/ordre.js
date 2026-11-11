@@ -13,6 +13,15 @@ import { json, feil } from '../_lib/svar.js';
 const GRUNNPRIS = 239;
 const OPPGRADERING = 60;
 const STORLEIK = { enkel: 0, dobbel: 1, trippel: 2 };
+
+/* Det formelle namnet. Det same ordet skal stå på grillskjermen, på
+   kvitteringa og i Vipps — difor blir det lagra her, ikkje utleidd kvar
+   gong. «Buldring» seier ingenting til ein kokk eller ein rekneskap. */
+const PRODUKTNAMN = {
+  enkel: 'Osterøymeny 120',
+  dobbel: 'Osterøymeny 240',
+  trippel: 'Osterøymeny 360'
+};
 const TOPPING_PRIS = 20;
 const ENERGI_PRIS = 10;
 const MAKS_MENYAR = 10;
@@ -61,6 +70,7 @@ export async function onRequestPost({ request, env }) {
     linjer = inn.linjer.map((l) => ({
       namn: String(l.namn || '').slice(0, 24),
       storleik: l.storleik,
+      produkt: PRODUKTNAMN[l.storleik] || null,
       ost: Math.max(0, Math.min(MAKS_TOPPING, Number(l.ost) || 0)),
       bacon: Math.max(0, Math.min(MAKS_TOPPING, Number(l.bacon) || 0)),
       saus: l.saus === 'Kebabsaus' || l.saus === 'Bearnaise' ? l.saus : null,

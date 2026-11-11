@@ -37,16 +37,29 @@ var OPPSETT = {
 var Lyd = (function () {
   var ctx = null;
 
-  function slaaPaa() {
+  /* ctx.resume() er asynkron. Kalla me ring() rett etterpå, var
+     tilstanden framleis «suspended», og ring() avbraut seg sjølv
+     stille. Difor ventar me på resume før me spelar — og me gjer det
+     ved kvar lyd, ikkje berre ved oppstart: nettlesaren kan suspendere
+     konteksten att når fana har lege i bakgrunnen. */
+  function klar() {
     try {
       var AC = window.AudioContext || window.webkitAudioContext;
       if (!ctx) ctx = new AC();
-      if (ctx.state === 'suspended') ctx.resume();
-      ring();
-      return true;
+      if (ctx.state === 'running') return Promise.resolve(true);
+      return ctx.resume().then(function () {
+        return ctx.state === 'running';
+      }, function () { return false; });
     } catch (e) {
-      return false;
+      return Promise.resolve(false);
     }
+  }
+
+  function slaaPaa() {
+    return klar().then(function (ok) {
+      if (ok) spelKlang();
+      return ok;
+    });
   }
 
   /* Sinus, ikkje firkant. Firkantbølgja er full av overtonar og blir
@@ -73,7 +86,7 @@ var Lyd = (function () {
      nyheit — ein skal ikkje få vondt i magen av å høyre henne. */
   var KLANG = [659.25, 830.61, 987.77];   // E5, G#5, B5
 
-  function ring() {
+  function spelKlang() {
     if (!ctx || ctx.state !== 'running') return;
     var t = ctx.currentTime;
     KLANG.forEach(function (f, i) {
@@ -86,10 +99,13 @@ var Lyd = (function () {
   /* Påminninga er éin tone, ikkje treklangen. Nokon veit alt om denne
      ordren — dette er ei lita dulting, ikkje ei melding. Svakare og
      kortare, så ho ikkje tek merksemd frå ein ny ordre som kjem inn. */
-  function minn() {
+  function spelTone() {
     if (!ctx || ctx.state !== 'running') return;
     tone(ctx.currentTime, 659.25, 1.1, 0.055);
   }
+
+  function ring() { klar().then(function (ok) { if (ok) spelKlang(); }); }
+  function minn() { klar().then(function (ok) { if (ok) spelTone(); }); }
 
   return {
     slaaPaa: slaaPaa,
@@ -249,7 +265,7 @@ function byggOrdre(o) {
 
     // Produktnamn med topping-koden rett bak talet: O, B eller O&B.
     var p = el('span', 'linje-produkt');
-    p.appendChild(document.createTextNode(l.produkt));
+    p.appendChild(document.createTextNode(produktnamn(l)));
     var kode = toppingKodeEl(l);
     if (kode) p.appendChild(kode);
     li.appendChild(p);
@@ -296,7 +312,9 @@ function byggOrdre(o) {
   kort.appendChild(rad);
 
   var botn = el('div', 'ordre-botn');
-  botn.appendChild(el('span', null, o.kunde.namn + ' · ' + o.kunde.telefon));
+  // Namn på kunden har me ikkje — det kjem frå Vipps når betalinga er
+  // kopla til. Til då er telefonnummeret det einaste me veit.
+  botn.appendChild(el('span', null, (o.kunde && o.kunde.telefon) || 'ukjend nummer'));
   botn.appendChild(el('span', 'ordre-sum', o.sum + ',-'));
   kort.appendChild(botn);
 
@@ -336,6 +354,18 @@ var GRONSAKER = [
  * Talet blir utelate når det er éin. «1O» ville lagt til eit teikn utan
  * å leggje til meining, og desto fleire teikn, desto meir må lesast.
  */
+/* Tenaren lagrar storleiken ('trippel'), ikkje namnet. Namnet høyrer
+   til framsyninga, og skal vere det same her som på kvitteringa. */
+var PRODUKTNAMN = {
+  enkel: 'Osterøymeny 120',
+  dobbel: 'Osterøymeny 240',
+  trippel: 'Osterøymeny 360'
+};
+
+function produktnamn(l) {
+  return l.produkt || PRODUKTNAMN[l.storleik] || 'Osterøymeny';
+}
+
 var TOPPING = [
   { felt: 'ost',   bokstav: 'O', namn: 'ost' },
   { felt: 'bacon', bokstav: 'B', namn: 'bacon' }
