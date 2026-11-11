@@ -438,6 +438,19 @@ function oppdaterStatuslinje() {
   stengdFelt.hidden = !stengde.length;
   stengdFelt.textContent = 'Stengd: ' + stengde.join(', ');
 
+  // Ein skjerm som viser gamle ordrar utan å seie frå at han har mista
+  // kontakten, er farlegare enn ein tom skjerm.
+  var f = Ordrekjelde.sisteFeil && Ordrekjelde.sisteFeil();
+  var kontakt = document.getElementById('kontaktvarsel');
+  if (kontakt) {
+    kontakt.hidden = !f;
+    kontakt.textContent = f === 'TENAR'
+      ? 'Tenaren svarar ikkje. Ordrane nedanfor kan vere gamle.'
+      : f === 'NETT'
+        ? 'Ikkje kontakt med nettet. Ordrane nedanfor kan vere gamle.'
+        : '';
+  }
+
   var lyd = document.getElementById('lydstatus');
   lyd.textContent = Lyd.erPaa() ? 'Lyd på' : 'Lyd AV — trykk her';
   lyd.classList.toggle('av', !Lyd.erPaa());
@@ -607,12 +620,32 @@ document.addEventListener('DOMContentLoaded', function () {
     Lyd.slaaPaa();
 
     Ordrekjelde.settToken(kode).then(function () {
-      if (Ordrekjelde.sisteFeil() === 'LOYVE') {
-        document.getElementById('loyve-feil').hidden = false;
+      var f = Ordrekjelde.sisteFeil();
+      var boks = document.getElementById('loyve-feil');
+
+      if (f === 'LOYVE') {
+        boks.textContent = 'Feil kodeord. Prøv igjen.';
+        boks.hidden = false;
         kodefelt.value = '';
         kodefelt.focus();
         return;
       }
+
+      if (f === 'TENAR') {
+        // Kodeordet er rett — det er tenaren som ikkje får svart.
+        // Nesten alltid at databasen ikkje er kopla til Pages-prosjektet.
+        boks.textContent = 'Kodeordet er rett, men tenaren får ikkje tak i ' +
+          'databasen. Sjekk at D1-bindinga DB er sett på Pages-prosjektet.';
+        boks.hidden = false;
+        return;
+      }
+
+      if (f === 'NETT') {
+        boks.textContent = 'Fekk ikkje kontakt. Sjekk nettet og prøv igjen.';
+        boks.hidden = false;
+        return;
+      }
+
       loyve.hidden = true;
       oppdaterStatuslinje();
     });

@@ -33,10 +33,20 @@
       'authorization': 'Bearer ' + token(),
       'content-type': 'application/json'
     }, val.headers || {});
+    /* Tre ulike feil, tre ulike ting å gjere med dei:
+         LOYVE  feil kodeord — skriv det på nytt
+         TENAR  tenaren svarar, men noko er gale der — oftast at
+                databasen ikkje er kopla til. Kodeordet er rett.
+         NETT   ikkje kontakt i det heile — wifi, straum, eller nede
+       Slår ein dei saman, får brukaren «noko gjekk gale», som ikkje
+       hjelper nokon. */
     return fetch('/api/grill/' + sti, val).then(function (r) {
       if (r.status === 401) throw new Error('LOYVE');
+      if (r.status >= 500) throw new Error('TENAR');
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
+    }, function () {
+      throw new Error('NETT');
     });
   }
 
