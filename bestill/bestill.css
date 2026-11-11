@@ -718,3 +718,10 @@
   color: var(--color-primary-dark);
   margin: 0 0 6px;
 }
+
+/* Same utsjånad som ei oppteken luke, så hjelpeteksten peikar på noko
+   lesaren kjenner att. */
+.doeme-doeme {
+  text-decoration: line-through;
+  opacity: 0.55;
+}

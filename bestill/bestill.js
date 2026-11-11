@@ -437,7 +437,13 @@ function teiknLuker() {
     k.className = 'luke' + (ordre.luke === l.tid ? ' er-valt' : '');
     k.textContent = l.tid;
     k.disabled = !l.ledig;
-    if (!l.ledig) { k.classList.add('er-teken'); k.title = 'Alt bestilt'; }
+    if (!l.ledig) {
+      // Overstreking åleine seier ikkje kvifor. Skjermlesarar og
+      // musepeikarar får forklaringa; sjølve ordet ville sprengt chipen.
+      k.classList.add('er-teken');
+      k.title = 'Alt bestilt';
+      k.setAttribute('aria-label', l.tid + ' — alt bestilt');
+    }
     k.addEventListener('click', function () { ordre.luke = l.tid; teiknAlt(); });
     rot.appendChild(k);
   });
