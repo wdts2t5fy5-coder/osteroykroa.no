@@ -12,7 +12,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="stylesheet" href="/grill/grill.css?v=10">
+  <link rel="stylesheet" href="/grill/grill.css?v=12">
 </head>
 <body id="body">
 
@@ -61,7 +61,8 @@
   <p id="kontaktvarsel" class="kontaktvarsel" hidden></p>
 
   <p id="vakenstatus" class="vakenvarsel" hidden>
-    Skjermen kan sovne av seg sjølv. Set skjermtida til «aldri» i innstillingane på nettbrettet.
+    <span>Skjermen kan sovne av seg sjølv. Set skjermtida til «aldri» i innstillingane.</span>
+    <button type="button" id="skjul-vaken" class="vakenvarsel-vekk">Skjøna</button>
   </p>
 
   <main>
@@ -76,13 +77,16 @@
       <p id="tomt" class="tomt" hidden>Ingen ordre akkurat no.</p>
     </section>
 
+    <!-- Historikk. Interessant av og til, i vegen resten av tida. -->
     <section id="blokk-ferdige" class="blokk blokk--ferdige" hidden>
-      <h2>Ferdige i dag</h2>
-      <div id="ferdige" class="ordreliste"></div>
+      <details>
+        <summary><span id="ferdige-tal">0</span> ferdige i dag</summary>
+        <div id="ferdige" class="ordreliste"></div>
+      </details>
     </section>
   </main>
 
   <script src="/grill/ordrekjelde.js?v=7"></script>
-  <script src="/grill/grill.js?v=14"></script>
+  <script src="/grill/grill.js?v=15"></script>
 </body>
 </html>

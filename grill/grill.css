@@ -613,3 +613,78 @@ main,
   font-weight: 600;
   font-size: 0.92rem;
 }
+
+/* ── Forenkla ordrekort ───────────────────────────────────────────
+   Éin stor knapp, alltid på same plass. Alt anna er mindre og under.
+   Ein skjerm ein lærer på eitt skift, ikkje på ei opplæring. */
+.ordre-knappar .kn {
+  flex: 1 1 100%;
+  min-height: 64px;
+  font-size: 1.15rem;
+}
+
+.ordre-botn {
+  align-items: center;
+  gap: 10px;
+}
+
+.botn-tlf {
+  color: var(--m-dempa);
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+  text-decoration: none;
+}
+
+a.botn-tlf:active { color: var(--m-tekst); }
+
+/* Avvising er sjeldan og ikkje til å gjere om. Han skal finnast, men
+   ikkje konkurrere med Godta. Difor liten, grå og heilt til høgre —
+   den plassen handa går minst til. */
+.botn-avvis {
+  margin-left: auto;
+  padding: 8px 12px;
+  background: none;
+  border: 1px solid var(--m-kant);
+  border-radius: 8px;
+  color: var(--m-dempa);
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.botn-avvis:active { color: var(--f-ny); border-color: var(--f-ny); }
+
+/* ── Vakenvarsel som kan lukkast ──────────────────────────────── */
+.vakenvarsel {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.vakenvarsel span { flex: 1 1 auto; }
+
+.vakenvarsel-vekk {
+  flex: 0 0 auto;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 0;
+  border-radius: 7px;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+/* ── Samanfalda historikk ─────────────────────────────────────── */
+.blokk--ferdige summary {
+  cursor: pointer;
+  color: var(--m-dempa);
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 6px 0;
+}
+
+.blokk--ferdige summary::marker { color: var(--m-kant); }
+.blokk--ferdige .ordreliste { margin-top: 14px; }

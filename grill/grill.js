@@ -248,13 +248,13 @@ function byggOrdre(o) {
   topp.appendChild(el('span', 'ordre-id', o.id));
   kort.appendChild(topp);
 
-  if (fase === 'ny' || fase === 'eskalert' || fase === 'lag') {
-    var merke = el('div', 'ordre-merke', {
-      ny: 'NY — må godtakast',
-      eskalert: 'IKKJE GODTEKEN',
-      lag: 'LAG NO'
-    }[fase]);
-    kort.appendChild(merke);
+  /* «NY» står alt i seksjonsoverskrifta over kortet — å seie det ein
+     gong til gjer det ikkje tydelegare, berre travlare. Dei to andre
+     ber informasjon overskrifta ikkje har: at tida renn ut, og at det
+     er no ein skal byrje å lage. */
+  if (fase === 'eskalert' || fase === 'lag') {
+    kort.appendChild(el('div', 'ordre-merke',
+      fase === 'eskalert' ? 'IKKJE GODTEKEN' : 'LAG NO'));
   }
 
   /* — linjene — */
@@ -283,19 +283,19 @@ function byggOrdre(o) {
   });
   kort.appendChild(ul);
 
-  /* — knappar — */
+  /* — knappar —
+     Éin stor knapp per kort, alltid på same plass, alltid det ein
+     normalt skal gjere. Alt anna er mindre og ved sida av. Ein kokk
+     skal kunne lære skjermen ved å trykkje den store knappen og sjå
+     kva som skjer. */
   var rad = el('div', 'ordre-knappar');
+
   if (o.status === 'ny') {
     rad.appendChild(knapp('Godta', 'kn kn--ja', function () {
       Ordrekjelde.settStatus(o.id, 'godteken');
     }));
-    rad.appendChild(knapp('Kan ikkje levere', 'kn kn--nei', function () {
-      if (confirm('Avvise ordre ' + o.id + '?\n\nKunden har betalt, så dette krev refusjon.')) {
-        Ordrekjelde.settStatus(o.id, 'avvist');
-      }
-    }));
   } else if (o.status === 'godteken') {
-    rad.appendChild(knapp('Klar i luka', 'kn kn--ja', function () {
+    rad.appendChild(knapp('Klar', 'kn kn--ja', function () {
       Ordrekjelde.settStatus(o.id, 'klar');
     }));
   } else if (o.status === 'klar') {
@@ -303,19 +303,28 @@ function byggOrdre(o) {
       Ordrekjelde.settStatus(o.id, 'henta');
     }));
   }
-
-  if (o.status === 'ny' || o.status === 'godteken' || o.status === 'klar') {
-    var tlf = el('a', 'kn kn--tlf', 'Ring kunden');
-    tlf.href = 'tel:' + (o.kunde.telefon || '');
-    rad.appendChild(tlf);
-  }
   kort.appendChild(rad);
 
+  /* — botnrad: telefon og avvising —
+     Avvising er sjeldan og ikkje til å gjere om. Han skal vere der,
+     men han skal ikkje konkurrere med Godta om merksemda. */
   var botn = el('div', 'ordre-botn');
-  // Namn på kunden har me ikkje — det kjem frå Vipps når betalinga er
-  // kopla til. Til då er telefonnummeret det einaste me veit.
-  botn.appendChild(el('span', null, (o.kunde && o.kunde.telefon) || 'ukjend nummer'));
-  botn.appendChild(el('span', 'ordre-sum', o.sum + ',-'));
+
+  if (o.kunde && o.kunde.telefon) {
+    var tlf = el('a', 'botn-tlf', o.kunde.telefon);
+    tlf.href = 'tel:' + o.kunde.telefon;
+    botn.appendChild(tlf);
+  } else {
+    botn.appendChild(el('span', 'botn-tlf', 'ukjend nummer'));
+  }
+
+  if (o.status === 'ny' || o.status === 'godteken') {
+    botn.appendChild(knapp('Kan ikkje levere', 'botn-avvis', function () {
+      if (confirm('Avvise ' + o.id + '?\n\nKunden har betalt, så dette krev refusjon.')) {
+        Ordrekjelde.settStatus(o.id, 'avvist');
+      }
+    }));
+  }
   kort.appendChild(botn);
 
   return kort;
@@ -486,7 +495,16 @@ function oppdaterStatuslinje() {
   lyd.classList.toggle('av', !Lyd.erPaa());
 
   var vak = document.getElementById('vakenstatus');
-  vak.hidden = !!vaken || !('wakeLock' in navigator);
+  var lest = false;
+  try { lest = localStorage.getItem('osteroykroa-vaken-lest') === '1'; } catch (e) {}
+  vak.hidden = lest || !!vaken || !('wakeLock' in navigator);
+
+  var ferdigeTal = document.getElementById('ferdige-tal');
+  if (ferdigeTal) {
+    ferdigeTal.textContent = ordrar.filter(function (o) {
+      return o.status === 'henta' || o.status === 'avvist';
+    }).length;
+  }
 }
 
 function oppdaterKlokke() {
@@ -606,6 +624,14 @@ document.addEventListener('DOMContentLoaded', function () {
     teikn();
     sjekkVarsel();
   });
+
+  var skjul = document.getElementById('skjul-vaken');
+  if (skjul) {
+    skjul.addEventListener('click', function () {
+      try { localStorage.setItem('osteroykroa-vaken-lest', '1'); } catch (e) {}
+      document.getElementById('vakenstatus').hidden = true;
+    });
+  }
 
   document.getElementById('lydstatus').addEventListener('click', function (e) {
     e.stopPropagation();
