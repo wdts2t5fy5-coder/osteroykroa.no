@@ -121,6 +121,13 @@ export async function trekk(env, referanse, kroner) {
   return r.json();
 }
 
+/** Hentar eit token og kastar om det ikkje går. Til oppsettssjekken. */
+export async function prøvToken(env) {
+  bufraToken = null;          // tving eit ekte kall, ikkje eit bufra svar
+  await token(env);
+  return true;
+}
+
 /** Er Vipps konfigurert i det heile? */
 export function erOppsett(env) {
   return !!(env.VIPPS_CLIENT_ID && env.VIPPS_CLIENT_SECRET &&

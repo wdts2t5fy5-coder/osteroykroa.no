@@ -6,7 +6,7 @@
  */
 import { lukerIDag, norskNo } from '../../_lib/luker.js';
 import { json, feil, harLoyve } from '../../_lib/svar.js';
-import { hentBetaling, trekk, erOppsett } from '../../_lib/vipps.js';
+import { hentBetaling, trekk, erOppsett, prøvToken } from '../../_lib/vipps.js';
 
 const VENTETID_MS = 90000;
 
@@ -95,6 +95,27 @@ export async function onRequest(ctx) {
           godteke: o.godteke
         }))
       });
+    }
+
+    /* Oppsettssjekk. Finst fordi alternativet er å oppdage ein feil
+       nøkkel først når ein kunde står midt i ei betaling. */
+    if (request.method === 'GET' && rute === 'vipps') {
+      if (!erOppsett(env)) {
+        const manglar = ['VIPPS_CLIENT_ID', 'VIPPS_CLIENT_SECRET',
+                         'VIPPS_SUBSCRIPTION_KEY', 'VIPPS_MSN']
+          .filter((n) => !env[n]);
+        return json({ ok: false, grunn: 'manglar nøklar', manglar });
+      }
+      try {
+        await prøvToken(env);
+        return json({
+          ok: true,
+          miljo: env.VIPPS_BASE === 'produksjon' ? 'PRODUKSJON' : 'test',
+          msn: env.VIPPS_MSN
+        });
+      } catch (e) {
+        return json({ ok: false, grunn: String(e.message || e).slice(0, 300) });
+      }
     }
 
     if (request.method === 'POST' && rute === 'status') {
