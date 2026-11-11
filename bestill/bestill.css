@@ -725,3 +725,19 @@
   text-decoration: line-through;
   opacity: 0.55;
 }
+
+/* ── Kvitteringssida ──────────────────────────────────────────── */
+.kvitt-tittel {
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  margin: 0 0 14px;
+  color: var(--color-primary-dark);
+}
+
+.kvitt-ok::before { content: '✓ '; color: #3f9d57; }
+.kvitt-avbroten { color: var(--color-primary); }
+
+.kvitt-ventar {
+  margin: 0;
+  color: var(--color-text-muted);
+}

@@ -7,6 +7,7 @@
  */
 import { erGyldigTid, norskNo } from '../_lib/luker.js';
 import { json, feil } from '../_lib/svar.js';
+import { startBetaling, erOppsett } from '../_lib/vipps.js';
 
 /* Prisane bur her, på tenaren. Bestillingssida har sine eigne for å
  * kunne vise summen medan ein vel — men det er desse som gjeld. */
@@ -92,22 +93,50 @@ export async function onRequestPost({ request, env }) {
   }
 
   // ── Lagring ─────────────────────────────────────────────────────
+  //
+  // Ordren blir lagra som «venter» FØR betalinga startar. Det er med
+  // vilje: raden held luka medan kunden står i Vipps, så ingen andre kan
+  // ta tida imens. Ho blir synleg for grillen først når pengane er
+  // reserverte — og blir rydda bort att om kunden aldri fullfører.
   const { dato } = norskNo();
+  const referanse = `osteroykroa-${dato}-${inn.hentetid.replace(':', '')}-${crypto.randomUUID().slice(0, 8)}`;
+
   try {
     const res = await env.DB.prepare(
-      `INSERT INTO ordre (dato, hentetid, status, telefon, sum, linjer, motteke)
-       VALUES (?, ?, 'ny', ?, ?, ?, ?)`
+      `INSERT INTO ordre (dato, hentetid, status, telefon, sum, linjer, motteke, vipps_ref)
+       VALUES (?, ?, 'venter', ?, ?, ?, ?, ?)`
     ).bind(
       dato, inn.hentetid, reinTelefon(inn.telefon),
-      sum, JSON.stringify(linjer), Date.now()
+      sum, JSON.stringify(linjer), Date.now(), referanse
     ).run();
 
-    return json({
-      ok: true,
-      nr: res.meta.last_row_id,
-      hentetid: inn.hentetid,
-      sum
-    }, 201);
+    const nr = res.meta.last_row_id;
+
+    // Utan Vipps-nøklar hoppar me over betalinga og slepp ordren rett
+    // inn. Det held bestillingssida brukbar medan nøklane manglar, og
+    // seier tydeleg frå i svaret at ingenting er betalt.
+    if (!erOppsett(env)) {
+      await env.DB.prepare("UPDATE ordre SET status = 'ny' WHERE nr = ?").bind(nr).run();
+      return json({ ok: true, nr, hentetid: inn.hentetid, sum, betaling: 'av' }, 201);
+    }
+
+    try {
+      const url = new URL(request.url);
+      const redirectUrl = await startBetaling(env, {
+        referanse,
+        kroner: sum,
+        telefon: reinTelefon(inn.telefon),
+        tekst: `Osterøyburger, henting kl. ${inn.hentetid}`,
+        returUrl: `${url.origin}/bestill/kvittering?ref=${referanse}`
+      });
+      return json({ ok: true, nr, hentetid: inn.hentetid, sum, redirectUrl }, 201);
+    } catch (e) {
+      // Fekk me ikkje starta betalinga, skal luka bli ledig att med
+      // ein gong. Elles ville ein feil hjå Vipps blokkert ei hentetid
+      // resten av dagen.
+      await env.DB.prepare("UPDATE ordre SET status = 'avbroten' WHERE nr = ?").bind(nr).run();
+      return feil(502, 'fekk ikkje starta betalinga', e);
+    }
   } catch (e) {
     // Den unike indeksen i databasen slo til: nokon kom hit først.
     // Dette er ikkje ein feil — det er låsen som gjer jobben sin.

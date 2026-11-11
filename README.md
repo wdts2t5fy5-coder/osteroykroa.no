@@ -137,8 +137,40 @@ gjerast for **Preview**, ikkje berre Production.
 Grillskjermen spør om kodeordet første gong han blir opna, og hugsar det
 i nettbrettet.
 
+### Vipps
+
+Betalinga går gjennom ePayment-API-et. Flyten:
+
+1. `POST /api/ordre` lagrar ordren som **`venter`** og startar betalinga.
+   Raden held luka medan kunden står i Vipps.
+2. Kunden blir sendt til Vipps, og kjem tilbake til
+   `/bestill/kvittering?ref=…`.
+3. Kvitteringssida spør `GET /api/betaling`, som spør **Vipps** — ikkje
+   nettlesaren. At kunden kom tilbake seier ingenting om at han betalte.
+4. Er betalinga godkjend, blir ho trekt og ordren blir `ny`. Då, og
+   først då, dukkar ho opp på grillskjermen.
+
+**Avstemming.** Det farlege tilfellet er at kunden betaler og lukkar
+nettlesaren før han kjem tilbake. Då veit ingen at det er betalt, og han
+kjem og hentar mat ingen har laga. Grillskjermen spør tenaren kvart
+femte sekund uansett, så me nyttar den trafikken: ordrar som har stått
+som `venter` i over 90 sekund blir sjekka mot Vipps.
+
+**Løyndomar** (Settings → Variables and Secrets, hugs *Preview*):
+
+    VIPPS_CLIENT_ID
+    VIPPS_CLIENT_SECRET
+    VIPPS_SUBSCRIPTION_KEY
+    VIPPS_MSN
+    VIPPS_BASE              valfri — «produksjon» for ekte pengar
+
+`VIPPS_BASE` er med vilje slik at tomt tyder test. Å gløyme ein
+konfigurasjon skal koste ei testkrone, ikkje ei ekte.
+
+Manglar nøklane, hoppar bestillingssida over betalinga og slepp ordren
+rett inn. Det held sida brukbar, og svaret seier `betaling: "av"`.
+
 ### Det som ikkje er bygd enno
 
-- Vipps. Bestillinga blir lagra, men ingen pengar blir trekte.
 - E-post til kunde og til godtfolk@osteroykroa.no.
 - Automatisk sletting etter 30 dagar, slik personvernerklæringa lovar.

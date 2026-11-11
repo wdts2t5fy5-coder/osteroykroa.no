@@ -689,6 +689,13 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
       .then(function (svar) {
         if (svar.ok) {
+          // Vipps tek over herifrå. Me sender kunden dit, og han kjem
+          // tilbake til kvitteringssida med referansen i adressa.
+          if (svar.d.redirectUrl) {
+            knapp.textContent = 'Sender deg til Vipps …';
+            location.href = svar.d.redirectUrl;
+            return;
+          }
           visKvittering(svar.d);
         } else {
           // Vanlegaste tilfellet: nokon tok tida medan kunden valde.

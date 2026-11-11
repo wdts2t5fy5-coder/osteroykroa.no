@@ -6,6 +6,42 @@
  */
 import { lukerIDag, norskNo } from '../../_lib/luker.js';
 import { json, feil, harLoyve } from '../../_lib/svar.js';
+import { hentBetaling, trekk, erOppsett } from '../../_lib/vipps.js';
+
+const VENTETID_MS = 90000;
+
+/* Spør Vipps om dei ordrane som står og ventar på betaling.
+ * Feilar eit kall, lèt me ordren stå — neste runde prøver igjen. */
+async function stemAv(env, dato) {
+  if (!erOppsett(env)) return;
+
+  const ventande = await env.DB.prepare(
+    `SELECT nr, sum, vipps_ref FROM ordre
+     WHERE dato = ? AND status = 'venter' AND motteke < ?`
+  ).bind(dato, Date.now() - VENTETID_MS).all();
+
+  for (const o of ventande.results) {
+    try {
+      const b = await hentBetaling(env, o.vipps_ref);
+
+      if (b.state === 'AUTHORIZED') {
+        try { await trekk(env, o.vipps_ref, o.sum); }
+        catch (e) { console.error('capture feila for ' + o.vipps_ref, e); }
+        await env.DB.prepare(
+          "UPDATE ordre SET status = 'ny' WHERE nr = ? AND status = 'venter'"
+        ).bind(o.nr).run();
+      } else if (['ABORTED', 'EXPIRED', 'TERMINATED'].includes(b.state)) {
+        // Luka blir ledig att med ein gong — ho skal ikkje stå reservert
+        // for nokon som ombestemte seg.
+        await env.DB.prepare(
+          "UPDATE ordre SET status = 'avbroten' WHERE nr = ? AND status = 'venter'"
+        ).bind(o.nr).run();
+      }
+    } catch (e) {
+      console.error('avstemming feila for ' + o.vipps_ref, e);
+    }
+  }
+}
 
 export async function onRequest(ctx) {
   const { request, env, params } = ctx;
@@ -16,9 +52,22 @@ export async function onRequest(ctx) {
 
   try {
     if (request.method === 'GET' && rute === 'ordrar') {
+      // Avstemming.
+      //
+      // Det farlege tilfellet: kunden betaler, og lukkar nettlesaren før
+      // han kjem tilbake til kvitteringssida. Då får ingen vite at det
+      // er betalt — og kunden kjem og hentar mat ingen har laga.
+      //
+      // Grillskjermen spør kvart femte sekund uansett, så me nyttar den
+      // trafikken til å spørje Vipps om dei ordrane som står og ventar.
+      // Me ventar 90 sekund først, så me ikkje maser medan kunden
+      // framleis står i appen.
+      await stemAv(env, dato);
+
       const r = await env.DB.prepare(
         `SELECT nr, hentetid, status, telefon, sum, linjer, motteke, godteke
-         FROM ordre WHERE dato = ? ORDER BY hentetid`
+         FROM ordre WHERE dato = ? AND status != 'venter' AND status != 'avbroten'
+         ORDER BY hentetid`
       ).bind(dato).all();
 
       const stengde = await env.DB.prepare(

@@ -147,6 +147,15 @@ function tidTilMinutt(tid) {
   return parseInt(d[0], 10) * 60 + parseInt(d[1], 10);
 }
 
+/* 92966000 blir 929 66 000. Grupperinga er ikkje pynt: eit tal i
+   grupper blir lese og tasta rett på første forsøk, eit tal i åtte
+   like siffer blir det ikkje. */
+function telefonTekst(nr) {
+  var t = String(nr || '').replace(/\D/g, '');
+  if (t.length !== 8) return String(nr || '');
+  return t.slice(0, 3) + ' ' + t.slice(3, 5) + ' ' + t.slice(5);
+}
+
 function minuttTekst(m) {
   if (m < 0) return 'for ' + Math.abs(m) + ' min sidan';
   if (m === 0) return 'no';
@@ -311,7 +320,7 @@ function byggOrdre(o) {
   var botn = el('div', 'ordre-botn');
 
   if (o.kunde && o.kunde.telefon) {
-    var tlf = el('a', 'botn-tlf', o.kunde.telefon);
+    var tlf = el('a', 'botn-tlf', telefonTekst(o.kunde.telefon));
     tlf.href = 'tel:' + o.kunde.telefon;
     botn.appendChild(tlf);
   } else {
